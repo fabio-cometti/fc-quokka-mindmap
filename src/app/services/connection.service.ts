@@ -23,12 +23,10 @@ export class ConnectionService {
   });
 
   private rightAnchors: [AnchorSpec, AnchorSpec] = ['Right', 'Left'];
-  private leftAnchors: [AnchorSpec, AnchorSpec]  = ['Left', 'Right',];
-  //private container!: ElementRef;
+  private leftAnchors: [AnchorSpec, AnchorSpec]  = ['Left', 'Right',];  
 
   constructor() { 
-    //window.onresize = () => this.jsPlumbInstance.repaintEverything(); //Repaint the map if the window is resized
-    //window.onscroll = () => this.jsPlumbInstance.repaintEverything(); //Repaint the map if scroll occurs
+    
   }
 
   /**
@@ -79,8 +77,7 @@ export class ConnectionService {
    * @param container Set the main container for the map
    */
   setContainer(container: ElementRef): void {
-    this.jsPlumbInstance.setContainer(container.nativeElement);
-    //this.container = container;
+    this.jsPlumbInstance.setContainer(container.nativeElement);    
   }
 
   /**
@@ -88,7 +85,7 @@ export class ConnectionService {
    */
   preview(): void {
     const containerElement =this.jsPlumbInstance.getContainer();    
-    //const self = this;    
+       
     toBlob(containerElement as HTMLElement, {width: containerElement.scrollWidth + 100, height: containerElement.scrollHeight + 50, backgroundColor: '#303030'})
       .then(function (blob) {
         const blobUrl = URL.createObjectURL(blob);
@@ -101,7 +98,7 @@ export class ConnectionService {
    */
   exportAsPng(): void {
     const containerElement =this.jsPlumbInstance.getContainer();
-    //const self = this;
+   
     toPng(containerElement as HTMLElement, {width: containerElement.scrollWidth + 100, height: containerElement.scrollHeight + 50, backgroundColor: '#303030'})
       .then(function (dataUrl) {
         downloadURI(dataUrl,'map.png');
@@ -113,35 +110,12 @@ export class ConnectionService {
    */
   exportAsSVG(): void {
     const containerElement =this.jsPlumbInstance.getContainer();
-    //const self = this;
+    
     toSvg(containerElement as HTMLElement, {width: containerElement.scrollWidth + 100, height: containerElement.scrollHeight + 50, backgroundColor: '#303030'})
       .then(function (dataUrl) {
         downloadURI(dataUrl,'map.svg');
       });
-  }
-
-  /**
-   * Save the current map in a JSON format
-   * @param map
-   */
-  // saveMap(map: RootMapCollection): void {
-  //   const jsonData = JSON.stringify(map);    
-  //   const file = new Blob([jsonData], {type: 'text/json'});
-  //   const uri = URL.createObjectURL(file);
-  //   downloadURI(uri, 'map.json');
-  // }
-
-  
-  // getNewMap(): RootMapCollection {
-  //   return {
-  //     rootItem: {
-  //       id: uuidv4(),
-  //       title: 'The root'
-  //     },
-  //     leftChildren: [],
-  //     rightChildren: []
-  //   }
-  // }
+  }  
 
   /**
    * Get a new root node for a new map
