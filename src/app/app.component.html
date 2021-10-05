@@ -1,0 +1,17 @@
+<div class="app-container">
+    <h1 class="title">        
+        F.C. Quokka Mind Map
+    </h1>    
+    <mat-tab-group [selectedIndex]="currentTab" (selectedIndexChange)="currentTab = $event"  mat-align-tabs="start">
+        <mat-tab *ngFor="let tab of tabs; let index = index; trackBy: identify" >
+            <ng-template mat-tab-label>
+                <fa-icon class="close-map" (click)="closeMap(tab.id, index)" [icon]="faWindowClose" title="Close Map"></fa-icon>&nbsp;
+                {{tab.title}}
+            </ng-template>
+            <div>                
+                <fc-map-dashboard [initialTitle]="tab.title" (addMap)="addMap()" (getAQuokka)="getAQuokka()" (titleChange)="updateTitle($event, index)"></fc-map-dashboard>
+            </div>            
+        </mat-tab>
+    </mat-tab-group>    
+</div>
+<fc-quokkerize #quokka [@runState]="quokkaState$ | async" (@runState.start)="roar($event)" (@runState.done)="resetQuokka($event)"></fc-quokkerize>

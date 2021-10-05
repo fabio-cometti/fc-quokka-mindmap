@@ -1,0 +1,48 @@
+<div class="node-container" [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
+    
+    <div class="children-container-left">
+        <fc-map-node *ngFor="let n of leftNodes$ | async; trackBy: identify; first as isFirst; last as isLast" 
+            [node]="n"
+            [isFirst]="isFirst"
+            [isLast]="isLast"
+            (nodeAdded)="onNodeAdded($event)"
+            (nodeDeleted)="onNodeDeleted($event)"
+            (nodeMoved)="onNodeMoved($event)"
+            (nodeSorted)="onNodeSorted($event)">          
+        </fc-map-node> 
+    </div>
+
+    <div class="main-item-container" [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
+        <fc-map-item  
+            [id]="('' + node.id)" 
+            [title]="('' + node.title)" 
+            [isRoot]="node.isRoot"
+            [css]="node.css || 'conn'"
+            [isFirstLevel]="node.isFirstLevel"
+            [isFirst]="isFirst"
+            [isLast]="isLast"
+            [state]="node.isNew ? 'edit': 'view'"
+            (titleChange)="updateTitle($event)"                 
+            (addedNode)="addChild(('' + node.id))" 
+            (nodeDeleted)="deleteNode($event)" 
+            (initialized)="onInitialized($event)"
+            (changeState)="onChangeState()"
+            (movedNode)="moveNode($event)"
+            (sortedNode)="sortNode($event)"
+            > 
+        </fc-map-item>
+    </div>
+
+    <div class="children-container-right">
+        <fc-map-node *ngFor="let n of rightNodes$ | async; trackBy: identify; first as isFirst; last as isLast" 
+            [node]="n"
+            [isFirst]="isFirst"
+            [isLast]="isLast"
+            (nodeAdded)="onNodeAdded($event)"
+            (nodeDeleted)="onNodeDeleted($event)"
+            (nodeMoved)="onNodeMoved($event)"
+            (nodeSorted)="onNodeSorted($event)" >
+        </fc-map-node>        
+    </div>
+
+</div>

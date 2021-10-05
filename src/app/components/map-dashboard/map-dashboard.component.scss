@@ -1,0 +1,40 @@
+.map-container {
+    height: 75vh;
+    margin-top: 1em;
+}
+
+.main-toolbar {
+    position: fixed;
+    right: 8px;
+    top: 150px;      
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar-icon {
+    width: 64px;
+    height: 64px;      
+    line-height: 64px;
+    font-size: 32px;
+    text-align: center;
+    border-bottom: solid 1px #ff9800;
+    color: #ff9800; 
+    background-color: transparent;
+
+    cursor: pointer; 
+    
+    &:hover {
+        color: #303030; 
+        background-color: #ff9800;      
+    }
+
+    &.disabled {
+        opacity: 0.5;
+
+        &:hover {
+            color: #ff9800; 
+            background-color: transparent;
+          }
+    }      
+}

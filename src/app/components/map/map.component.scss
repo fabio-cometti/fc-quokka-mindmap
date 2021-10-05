@@ -1,0 +1,48 @@
+.outer-container {
+    width: calc(100% - 80px);
+    height: calc(100% - 10px);
+    overflow: auto;
+    border: solid 1px #ff9800;
+    
+    .main-container {
+        display: flex;   
+        font-family: 'Verdana'; 
+        font-size: 20px;    
+        
+        position: relative;
+        padding: 20px;
+    
+        &.zoom0_1 {
+          transform-origin: 0 0;
+          transform: scale(0.1);
+        }
+        &.zoom0_2 {
+          transform-origin: 0 0;
+          transform: scale(0.2);
+        }    
+        &.zoom0_4 {
+          transform-origin: 0 0;
+          transform: scale(0.4);
+        }
+        &.zoom0_5 {
+          transform-origin: 0 0;
+          transform: scale(0.5);
+        }    
+        &.zoom0_75 {
+          transform-origin: 0 0;
+          transform: scale(0.75);
+        }
+        &.zoom1_0 {
+          transform-origin: 0 0;
+          transform: scale(1.0);
+        }
+        
+        .children-container-left {  
+            justify-content: end;
+        }
+          
+        .children-container-right {  
+            justify-content: start;
+        }
+    }
+}

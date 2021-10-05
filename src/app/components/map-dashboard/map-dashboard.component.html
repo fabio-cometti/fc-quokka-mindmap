@@ -1,0 +1,45 @@
+<div class="map-container">
+    <fc-map (titleChange)="updateTitle($event)" #map [node]="rootNode" [zoom]="zoomLevels[zoomIndex]"></fc-map>
+</div>
+<div class="main-toolbar">  
+    <div class="toolbar-icon">
+        <fa-icon (click)="newMap()" [icon]="faFileMedical" title="New map"></fa-icon>
+    </div>
+    
+    <div class="toolbar-icon">
+        <fa-icon (click)="open()" [icon]="faFolderOpen" title="Open"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon">
+        <fa-icon (click)="save()" [icon]="faSave" title="Save"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon">
+        <fa-icon (click)="preview()" [icon]="faImages" title="Preview"></fa-icon>
+    </div>        
+
+    <div class="toolbar-icon">
+        <fa-icon (click)="exportAsPNG()" [icon]="faImage" title="Export PNG"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon">
+        <fa-icon (click)="exportAsSVG()" [icon]="faBezierCurve" title="Export SVG"></fa-icon>
+    </div>       
+
+    <div class="toolbar-icon" [ngClass]="{disabled: zoomIndex >= 5}">
+        <fa-icon (click)="zoomIn()" [icon]="faSearchPlus" title="Zoom in"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon" [ngClass]="{disabled: zoomIndex <= 0}">
+        <fa-icon (click)="zoomOut()" [icon]="faSearchMinus" title="Zoom out"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon">
+        <fa-icon (click)="getQuokka()" [icon]="faGift" title="Get a free Quokka"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon" *ngIf="pwa.promptEvent" >
+        <fa-icon (click)="installPwa()" [icon]="faCog" title="Install"></fa-icon>
+    </div>
+</div>
+<input #fi type="file" style="display: none;" (change)="handleFiles($event)" accept=".json" />

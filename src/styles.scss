@@ -1,0 +1,84 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$fc-mindmap-primary: mat-palette($mat-orange);
+$fc-mindmap-accent: mat-palette($mat-indigo, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$fc-mindmap-warn: mat-palette($mat-red);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$fc-mindmap-theme: mat-dark-theme((
+  color: (
+    primary: $fc-mindmap-primary,
+    accent: $fc-mindmap-accent,
+    warn: $fc-mindmap-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($fc-mindmap-theme);
+
+path {
+  stroke-width: 3;  
+}
+
+.conn path {
+  stroke: #ff9800;     
+}
+
+.conn0 path {
+  stroke: DodgerBlue;     
+}
+
+.conn1 path {
+  stroke: hotpink;     
+}
+
+.conn2 path {
+  stroke: yellowgreen;     
+}
+
+.conn3 path {
+  stroke: goldenrod ;     
+}
+
+.conn4 path {
+  stroke: cadetblue;     
+}
+
+.conn5 path {
+  stroke: purple;     
+}
+
+.conn6 path {
+  stroke: midnightblue;     
+}
+
+.conn7 path {
+  stroke: crimson;     
+}
+
+.conn8 path {
+  stroke:gold;     
+}
+
+.conn9 path {
+  stroke: green;     
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

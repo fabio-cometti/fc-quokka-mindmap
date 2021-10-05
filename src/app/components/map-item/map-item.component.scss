@@ -1,0 +1,230 @@
+.item-main-container {
+    width: max-content;
+}
+
+.item {     
+    min-width: 180px; 
+    height: 36px;
+    border-radius: 8px; 
+    border: solid 1px transparent;      
+    box-shadow: 3px 3px 10px 1px #555; 
+    overflow: hidden;  
+    text-align: center;  
+
+    &.root {
+        background-color: transparent !important;
+        color: #ff9800 !important;
+        // box-shadow: none !important;
+        // text-align: center !important;
+        font-size: 24px !important;
+        border: solid 1px #ff9800;
+        border-radius: 50%;
+        padding: 20px;
+    }
+    
+    &.conn {
+        background-color: DodgerBlue;
+        color: white; 
+    }
+    &.conn0 {
+        background-color: DodgerBlue;
+        color: white; 
+    }
+    &.conn1 {
+        background-color: hotpink;
+        color: white; 
+    }
+    &.conn2 {
+        background-color: yellowgreen;
+        color: white; 
+    }
+    &.conn3 {
+        background-color: goldenrod;
+        color: white; 
+    }
+    &.conn4 {
+        background-color: cadetblue;
+        color: white; 
+    }
+    &.conn5 {
+        background-color: purple;
+        color: white; 
+    }
+    &.conn6 {
+        background-color: midnightblue;
+        color: white; 
+    }
+    &.conn7 {
+        background-color: crimson;
+        color: white; 
+    }
+    &.conn8 {
+        background-color: gold;
+        color: white; 
+    }
+    &.conn9 {
+        background-color: green;
+        color: white; 
+    }
+
+    &.editing {
+        border: dashed 1px white;
+        opacity: 0.8;
+    }
+    
+    span {
+        min-width: 130px;        
+        line-height: 36px;
+        height: 36px;
+        padding: 0 5px;        
+        display: inline-block;               
+    }
+    
+    input {
+        width: 130px;       
+        height: 36px;
+        line-height: 36px;
+        font-size: 20px;
+        border: none 0px transparent;
+        padding: 0 5px; 
+        background-color: transparent;
+        outline: none;
+        font-family: "Verdana"; 
+        font-style: italic; 
+        text-align: center;        
+
+        &.root {            
+            color: #555 !important;
+            font-size: 24px !important; 
+            
+            &::selection {
+                color: white !important;
+                background: #555 !important;
+            }
+        }
+
+        &.conn {            
+            color: white; 
+
+            &::selection {
+                color: dodgerblue;
+                background: white;
+            }
+        }
+        &.conn0 {            
+            color: white;
+            
+            &::selection {
+                color: dodgerblue;
+                background: white;
+            }
+        }
+        &.conn1 {            
+            color: white;
+            
+            &::selection {
+                color: hotpink;
+                background: white;
+            }
+        }
+        &.conn2 {            
+            color: white;
+            
+            &::selection {
+                color: yellowgreen;
+                background: white;
+            }
+        }
+        &.conn3 {            
+            color: white;
+            
+            &::selection {
+                color: goldenrod;
+                background: white;
+            }
+        } 
+        &.conn4 {            
+            color: white;
+            
+            &::selection {
+                color: cadetblue;
+                background: white;
+            }
+        }
+        &.conn5 {            
+            color: white;
+            
+            &::selection {
+                color: purple;
+                background: white;
+            }
+        }
+        &.conn6 {            
+            color: white;
+            
+            &::selection {
+                color: midnightblue;
+                background: white;
+            }
+        } 
+        &.conn7 {            
+            color: white;
+            
+            &::selection {
+                color: crimson;
+                background: white;
+            }
+        } 
+        &.conn8 {            
+            color: white;
+            
+            &::selection {
+                color: gold;
+                background: white;
+            }
+        }
+        &.conn9 {            
+            color: white;
+            
+            &::selection {
+                color: green;
+                background: white;
+            }
+        }     
+    }  
+}
+
+div.item-toolbar {
+    position: relative;
+    right: -44px;
+    top: -8px;
+    color: #AAA;
+    opacity: 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 5px;
+    border: solid 1px #AAA;
+    border-radius: 8px;
+    width: fit-content;
+    transition: 0.4s;
+    float: right;
+
+    &.root {
+        right: 0;
+        top: -20px;
+    }
+
+    &.visible {
+        opacity: 1.0;
+    }
+
+    fa-icon {
+        margin-left: 7px;
+        margin-right: 7px;
+        cursor: pointer;        
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+}

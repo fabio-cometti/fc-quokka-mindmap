@@ -1,0 +1,20 @@
+<div (mouseenter)="showToolbar()" (mouseleave)="hideToolbar()" class="item-main-container">
+    <div #c class="item {{css}}" id="{{id}}" [ngClass]="{editing: state === 'edit', root: isRoot}" >
+        <span *ngIf="state === 'view'" 
+            title="{{title}}" 
+            (dblclick)="goToEdit()">{{title}}</span>
+        <input #i *ngIf="state === 'edit'" class="{{css}}" [ngClass]="{root: isRoot}"
+            type="text" 
+            value="{{title}}" 
+            (keyup.enter)="goToView()" 
+            (blur)="goToView()" 
+            (change)="titleChanged($event)"/>
+    </div>
+    <div class="item-toolbar {{css}}" [ngClass]="{ visible: showToolbarFlag, root: isRoot }">
+        <fa-icon (click)="addNode()" [icon]="faPlusCircle" title="New node"></fa-icon>        
+        <fa-icon *ngIf="!isRoot" (click)="deleteNode()" [icon]="faTrashAlt" title="Delete"></fa-icon>
+        <fa-icon *ngIf="isFirstLevel" (click)="moveNode()" [icon]="faExchangeAlt" title="Move branch"></fa-icon>
+        <fa-icon *ngIf="!isRoot && !isFirst" (click)="moveNodeUp()" [icon]="faArrowCircleUp" title="Move up"></fa-icon>
+        <fa-icon *ngIf="!isRoot && !isLast" (click)="moveNodeDown()" [icon]="faArrowCircleDown" title="Move down"></fa-icon>
+    </div>    
+</div>
