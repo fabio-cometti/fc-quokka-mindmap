@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 
+/**
+ * Service for managing PWA events
+ */
 @Injectable({
   providedIn: 'root'
 })

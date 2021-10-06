@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
 
+/**
+ * Component used for show a quokka animation and play a sound
+ */
 @Component({
   selector: 'fc-quokkerize',
   templateUrl: './quokkerize.component.html',
@@ -19,7 +20,10 @@ export class QuokkerizeComponent implements OnInit {
     
   }  
 
+  /**
+   * start to play a sound
+   */
   roar() {
-    //TODO: Play a sound
+    //TODO: Play a sound. Not so easy to find....
   } 
 }

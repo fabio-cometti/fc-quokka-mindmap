@@ -1,5 +1,4 @@
 import { MapNode } from './../models/map-item';
-import { RootMapCollection } from 'src/app/models/map-item';
 import { Injectable, ElementRef } from '@angular/core';
 import { AnchorSpec, jsPlumb } from 'jsplumb';
 import { toPng, toBlob, toSvg } from 'html-to-image';
@@ -7,6 +6,10 @@ import { downloadURI } from '../core/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { timer } from 'rxjs';
 
+/**
+ * Service for managing connection between nodes.
+ * Based on jsplumb Community Edition (https://jsplumbtoolkit.com/community)
+ */
 @Injectable({
   providedIn: 'root'
 })

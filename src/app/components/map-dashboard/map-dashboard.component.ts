@@ -47,15 +47,41 @@ export class MapDashboardComponent implements OnInit {
   zoomIndex = 5;
   zoomLevels = zoomLevels;
 
+  /**
+   * Initial title of the node. this value is not in sync with user changes
+   */
   @Input('initialTitle') initialTitle: string | null = null;
 
+  /**
+   * Emit when the title of the root odea is changed
+   */
   @Output('titleChange') titleChange = new EventEmitter<string>(); 
+  
+  /**
+   * Emit when add map button is clicked
+   */
   @Output('addMap') addMap = new EventEmitter<void>();
+  
+  /**
+   * Emit when 'get a quokka' button is clicked
+   */
   @Output('getAQuokka') getAQuokka = new EventEmitter<void>(); 
 
+  /**
+   * Input file field reference
+   */
   @ViewChild('fi') fi!: ElementRef;
+  
+  /**
+   * Map component reference
+   */
   @ViewChild('map') map!: MapComponent;
 
+  /**
+   * Default constructor
+   * @param connectionService 
+   * @param pwa 
+   */
   constructor(private connectionService: ConnectionService, public pwa: PwaService) {
 
   }
@@ -64,22 +90,35 @@ export class MapDashboardComponent implements OnInit {
     this.rootNode = this.connectionService.getNewRootNode(this.initialTitle);
   }
 
+  /**
+   * Handle zoom in click button
+   */
   zoomIn(): void {    
     if(this.zoomIndex < 5 ) {
       this.zoomIndex = this.zoomIndex + 1;
     }
   }
 
+  /**
+   * Handle zoom out click button
+   */
   zoomOut(): void {    
     if(this.zoomIndex > 0) {
       this.zoomIndex = this.zoomIndex - 1;
     }
   }
 
+  /**
+   * Open the file input dialog
+   */
   open(): void {
     this.fi.nativeElement.click();
   }
 
+  /**
+   * Handle file selection
+   * @param files 
+   */
   handleFiles(files: any) {
     const reader = new FileReader();
     const self = this;
@@ -94,6 +133,9 @@ export class MapDashboardComponent implements OnInit {
     } 
   }  
 
+  /**
+   * Handle save button click
+   */
   save(): void {
     const jsonData = JSON.stringify(this.rootNode);    
     const file = new Blob([jsonData], {type: 'text/json'});
@@ -101,30 +143,52 @@ export class MapDashboardComponent implements OnInit {
     downloadURI(uri, 'map.json');
   }
 
+  /**
+   * Handle export as PNG button click
+   */
   exportAsPNG(): void {
     this.connectionService.exportAsPng();
   }
 
+  /**
+   * Handle export as SVG button click
+   */
   exportAsSVG(): void {
     this.connectionService.exportAsSVG();
   }
 
+  /**
+   * Handle preview button click
+   */
   preview(): void {
     this.connectionService.preview();
   }
 
+  /**
+   * Handle the updateTitle event on the inner map component
+   * @param newTitle
+   */
   updateTitle(newTitle: string): void {
     this.titleChange.emit(newTitle);
   }
 
+  /**
+   * Handle the new map click button
+   */
   newMap(): void {
     this.addMap.emit();
   }
 
+  /**
+   * Handle the 'get a quokka' click button
+   */
   getQuokka(): void {
     this.getAQuokka.emit();
   }
 
+  /**
+   * Handle the install click button
+   */
   installPwa(): void {
     this.pwa.promptEvent.prompt();
   }

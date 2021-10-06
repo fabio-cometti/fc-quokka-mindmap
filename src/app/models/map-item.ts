@@ -1,19 +1,3 @@
-export interface MapItem {
-    id: string;
-    title: string;
-}
-
-export interface MapCollection {
-    item: MapItem;
-    children: MapCollection[];
-}
-
-export interface RootMapCollection {
-    rootItem: MapItem;
-    leftChildren: MapCollection[];
-    rightChildren: MapCollection[];
-}
-
 export interface MapNode {
     id: string;
     title: string;

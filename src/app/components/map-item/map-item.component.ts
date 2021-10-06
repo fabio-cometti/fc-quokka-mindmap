@@ -9,28 +9,92 @@ import { faPlusCircle, faTrashAlt, faExchangeAlt, faArrowCircleUp, faArrowCircle
 })
 export class MapItemComponent implements OnInit, AfterViewInit {
     
+  /**
+   * Id of the node
+   */
   @Input('id') id: string = '';
+  
+  /**
+   * Specify if a node is a root
+   */
   @Input('isRoot') isRoot: boolean = false;
+  
+  /**
+   * CSS class for the node
+   */
   @Input('css') css: string = 'conn';
   
+  /**
+   * Title of the node
+   */
   @Input('title') title: string = '';
-  @Input('isFirstLevel') isFirstLevel: boolean = false;    
-  @Output('titleChange') titleChange = new EventEmitter<string>();
-
-  @Input('state') state: 'edit' | 'view' = 'view'; 
-
-  @Input('isFirst') isFirst = false;
-  @Input('isLast') isLast = false;
   
+  /**
+   * Specify if a node is a first level node (a direct child of the root node)
+   */
+  @Input('isFirstLevel') isFirstLevel: boolean = false;
+  
+  /**
+   * State of the node. it can be 'edit' or 'view'
+   */
+  @Input('state') state: 'edit' | 'view' = 'view';
+  
+  /**
+   * Specify if the node is the first child of its parent
+   */
+  @Input('isFirst') isFirst = false;
+
+  /**
+   * Specify if the node is the last child of its parent
+   */
+  @Input('isLast') isLast = false; 
+  
+  /**
+   * Emit an event when the title is modified
+   */
+  @Output('titleChange') titleChange = new EventEmitter<string>();  
+  
+  /**
+   * Emit an event when the node is rendered
+   */
   @Output('initialized') initialized = new EventEmitter<string>();
+  
+  /**
+   * Emit when a child node is added
+   */
   @Output('addedNode') addedNode = new EventEmitter<string>();
+  
+  /**
+   * Emit when the current node is deleted
+   */
   @Output('nodeDeleted') nodeDeleted = new EventEmitter<string>();
+  
+  /**
+   * Emit when node change state
+   */
   @Output('changeState') changeState = new EventEmitter<string>();
+  
+  /**
+   * Emit when node is moved from left to right or vice-versa
+   */
   @Output('movedNode') movedNode = new EventEmitter<string>();
+  
+  /**
+   * Emit when a node is sorted
+   */
   @Output('sortedNode') sortedNode = new EventEmitter<{id: string, direction: 'up' | 'down'}>();
   
+  /**
+   * main container reference
+   */
   @ViewChild('c') c!: ElementRef;
+  
+  /**
+   * input field reference
+   */
   @ViewChild('i') i!: ElementRef; 
+  
+  //Icons
   
   faPlusCircle = faPlusCircle;
   faTrashAlt = faTrashAlt;
@@ -38,8 +102,14 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   faArrowCircleUp = faArrowCircleUp;
   faArrowCircleDown = faArrowCircleDown;
   
+  /**
+   * flag for toolbar visibility
+   */
   showToolbarFlag = false;
 
+  /**
+   * Default constructor
+   */
   constructor() { }  
 
   ngOnInit(): void {
@@ -54,11 +124,17 @@ export class MapItemComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * move the node in view state
+   */
   goToView(): void {
     this.state = 'view';
     this.changeState.emit('view');
   }
 
+  /**
+   * move the node in edit state
+   */
   goToEdit(): void {
     this.state = 'edit';    
     timer(20).subscribe(() => {
@@ -69,35 +145,60 @@ export class MapItemComponent implements OnInit, AfterViewInit {
     });    
   }
 
+  /**
+   * Update the title based on input value
+   * @param newtitle 
+   */
   titleChanged(newtitle: any): void {
     this.title = newtitle.srcElement.value;
     this.titleChange.emit(newtitle.srcElement.value);
   }
 
+  /**
+   * Show the toolbar
+   */
   showToolbar(): void {
     this.showToolbarFlag = true;
   }
 
+  /**
+   * Hide the toolbar
+   */
   hideToolbar(): void {
     this.showToolbarFlag = false;
   }
 
+  /**
+   * Handle add node button click
+   */
   addNode(): void {
     this.addedNode.emit(this.id);
   }
 
+  /**
+   * Handle delete node button click
+   */
   deleteNode(): void {
     this.nodeDeleted.emit(this.id);
   }
 
+  /**
+   * Handle move node button click
+   */
   moveNode(): void {
     this.movedNode.emit(this.id);
   }
 
+  /**
+   * Handle move up node button click
+   */
   moveNodeUp(): void {
     this.sortedNode.emit({id: this.id, direction: 'up'});
   }
 
+  /**
+   * Handle move down node button click
+   */
   moveNodeDown(): void {
     this.sortedNode.emit({id: this.id, direction: 'down'});
   }
