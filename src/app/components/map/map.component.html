@@ -1,4 +1,4 @@
-<div class="outer-container">
+<div class="outer-container" [ngClass.lt-sm]="'mobile'">
     <div #c class="main-container" [ngClass]="zoom">        
         <fc-map-node (titleChange)="updateTitle($event)" *ngFor="let n of [node]; " [node]="n!"></fc-map-node>
     </div>

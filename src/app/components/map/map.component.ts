@@ -37,7 +37,7 @@ export class MapComponent implements AfterViewInit  {
 
   /**
    * Default constructor
-   * @param connectionService
+   * @param connectionService  
    */
   constructor(private connectionService: ConnectionService) { }    
 
@@ -46,7 +46,7 @@ export class MapComponent implements AfterViewInit  {
   }  
 
   /**
-   * Deelte all connections
+   * Delete all connections
    */
   deleteConnections(): void {
     this.connectionService.disconnectAll(this.node.id);

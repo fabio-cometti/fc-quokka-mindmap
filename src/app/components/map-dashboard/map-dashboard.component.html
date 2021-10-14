@@ -1,7 +1,7 @@
 <div class="map-container">
     <fc-map (titleChange)="updateTitle($event)" #map [node]="rootNode" [zoom]="zoomLevels[zoomIndex]"></fc-map>
 </div>
-<div class="main-toolbar">  
+<div class="main-toolbar" [ngClass.lt-sm]="'mobile'">  
     <div class="toolbar-icon">
         <fa-icon (click)="newMap()" [icon]="faFileMedical" title="New map"></fa-icon>
     </div>

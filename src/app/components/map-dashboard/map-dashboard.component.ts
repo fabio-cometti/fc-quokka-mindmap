@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MediaObserver } from '@angular/flex-layout';
 import { 
   faSearchPlus, 
   faSearchMinus, 
@@ -81,13 +82,17 @@ export class MapDashboardComponent implements OnInit {
    * Default constructor
    * @param connectionService 
    * @param pwa 
+   * @param mediaObserver
    */
-  constructor(private connectionService: ConnectionService, public pwa: PwaService) {
+  constructor(private connectionService: ConnectionService, public pwa: PwaService, private mediaObserver: MediaObserver) {
 
   }
 
   ngOnInit(): void { 
     this.rootNode = this.connectionService.getNewRootNode(this.initialTitle);
+    if(this.mediaObserver.isActive('lt-sm')){
+      this.zoomIndex = 3;
+    }
   }
 
   /**

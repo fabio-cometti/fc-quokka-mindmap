@@ -72,7 +72,7 @@ export class ConnectionService {
    * Refresh and repaint the whole map
    */
   refresh(): void {
-    timer(20).subscribe(() => this.jsPlumbInstance.repaintEverything());
+    timer(0).subscribe(() => this.jsPlumbInstance.repaintEverything());
   }
 
   /**

@@ -1,11 +1,12 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { timer } from 'rxjs';
 import { faPlusCircle, faTrashAlt, faExchangeAlt, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'fc-map-item',
   templateUrl: './map-item.component.html',
-  styleUrls: ['./map-item.component.scss']
+  styleUrls: ['./map-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapItemComponent implements OnInit, AfterViewInit {
     

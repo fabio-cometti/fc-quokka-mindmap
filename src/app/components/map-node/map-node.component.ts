@@ -1,6 +1,6 @@
 import { BehaviorSubject, timer } from 'rxjs';
 import { ConnectionService } from 'src/app/services/connection.service';
-import { AfterViewChecked, AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MapNode } from 'src/app/models/map-item';
 import { map } from 'rxjs/operators';
 
@@ -10,7 +10,8 @@ import { map } from 'rxjs/operators';
 @Component({
   selector: 'fc-map-node',
   templateUrl: './map-node.component.html',
-  styleUrls: ['./map-node.component.scss']
+  styleUrls: ['./map-node.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked {
 
@@ -189,9 +190,22 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onNodeSorted(event: {id: string, direction: 'up' | 'down'}): void { 
     const index = this.node.children.map(n => n.id).indexOf(event.id);
+    const position = this.node.children[index].position;
+
+    let swapIndex2 = index;
+    if(event.direction === 'up') {
+      const swapId = this.node.children.filter((n,i) => n.position === position && i < index).pop()?.id;
+      swapIndex2 = this.node.children.map(n => n.id).indexOf(swapId || '');
+    } else {
+      const swapId = this.node.children.filter((n,i) => n.position === position && i > index)[0]?.id;
+      swapIndex2 = this.node.children.map(n => n.id).indexOf(swapId || '');
+    }
+
     let swapIndex = event.direction === 'up' ? index - 1 : index + 1;
     swapIndex = swapIndex < 0 ? 0 : swapIndex;
     swapIndex = swapIndex > this.node.children.length - 1 ? this.node.children.length - 1 : swapIndex;
+
+    swapIndex = swapIndex2;
 
     if (index !== swapIndex) {
       const temp = this.node.children[index];
@@ -199,6 +213,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
       this.node.children[swapIndex] = temp;
     }   
     
+    this.node.children = [...this.node.children];
     this.connectionService.refresh();    
     this.children$.next(this.node.children);    
   }

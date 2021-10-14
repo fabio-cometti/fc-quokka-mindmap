@@ -3,6 +3,10 @@
     height: calc(100% - 10px);
     overflow: auto;
     border: solid 1px #ff9800;
+
+    &.mobile {
+      width: calc(100% - 2px);
+    }
     
     .main-container {
         display: flex;   

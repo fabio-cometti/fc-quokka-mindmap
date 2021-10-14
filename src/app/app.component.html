@@ -1,7 +1,7 @@
 <div class="app-container">
-    <h1 class="title">        
-        F.C. Quokka Mind Map
-    </h1>    
+    <div>
+        <img class="logo" [ngClass.lt-sm]="'mobile-logo'" src="/assets/logo_quokka.png" />
+    </div>   
     <mat-tab-group [selectedIndex]="currentTab" (selectedIndexChange)="currentTab = $event"  mat-align-tabs="start">
         <mat-tab *ngFor="let tab of tabs; let index = index; trackBy: identify" >
             <ng-template mat-tab-label>
