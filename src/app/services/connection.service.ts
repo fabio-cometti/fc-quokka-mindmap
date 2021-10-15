@@ -4,7 +4,7 @@ import { AnchorSpec, jsPlumb } from 'jsplumb';
 import { toPng, toBlob, toSvg } from 'html-to-image';
 import { downloadURI } from '../core/utils';
 import { v4 as uuidv4 } from 'uuid';
-import { timer } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 
 /**
  * Service for managing connection between nodes.
@@ -26,7 +26,13 @@ export class ConnectionService {
   });
 
   private rightAnchors: [AnchorSpec, AnchorSpec] = ['Right', 'Left'];
-  private leftAnchors: [AnchorSpec, AnchorSpec]  = ['Left', 'Right',];  
+  private leftAnchors: [AnchorSpec, AnchorSpec]  = ['Left', 'Right'];  
+
+  /**
+   * Subject for manage map modifications
+   */
+  private changedMapSubject= new Subject<void>();
+  public changedMap$= this.changedMapSubject.asObservable();
 
   constructor() { 
     
@@ -157,5 +163,12 @@ export class ConnectionService {
       isFirstLevel: parent?.isRoot || false,
       isNew: isNew
     }
+  }
+
+  /**
+   * Emit an event of map changed
+   */
+  mapChanged(): void {
+    this.changedMapSubject.next();
   }
 }

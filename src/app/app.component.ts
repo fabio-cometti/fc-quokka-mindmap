@@ -59,12 +59,12 @@ export class AppComponent implements OnInit {
   /**
    * An array of maps tabs. Each tab has a title and an id (used as unique identifier)
    */
-  tabs = [{title: 'The root 1', id: uuidv4()}];
+  tabs = [{title: 'The root 1', id: uuidv4(), modified: false}];
   
   /**
    * Current selected tab
    */
-  currentTab = 0;
+  currentTab = 0;  
 
   /**
    * Default constructor   
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
    * Add a new tab with a new mind map
    */
   addMap(): void {
-    this.tabs.push({title: `The root ${this.tabs.length + 1}`, id: uuidv4()});
+    this.tabs.push({title: `The root ${this.tabs.length + 1}`, id: uuidv4(), modified: false});
     this.currentTab = this.tabs.length - 1;
   }
 
@@ -134,5 +134,9 @@ export class AppComponent implements OnInit {
    */
   closeMap(tab: string, index: number): void {
     this.tabs.splice(index, 1);
+  }
+
+  onMapModified(modified: boolean): void {
+
   }
 }

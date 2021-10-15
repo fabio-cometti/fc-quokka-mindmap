@@ -46,7 +46,7 @@ export class MapDashboardComponent implements OnInit {
   rootNode!: MapNode;
 
   zoomIndex = 5;
-  zoomLevels = zoomLevels;
+  zoomLevels = zoomLevels;  
 
   /**
    * Initial title of the node. this value is not in sync with user changes
@@ -66,7 +66,12 @@ export class MapDashboardComponent implements OnInit {
   /**
    * Emit when 'get a quokka' button is clicked
    */
-  @Output('getAQuokka') getAQuokka = new EventEmitter<void>(); 
+  @Output('getAQuokka') getAQuokka = new EventEmitter<void>();
+  
+  /**
+   * Emit when a map is modified
+   */
+  @Output('onMapModified') onMapModified = new EventEmitter<boolean>();
 
   /**
    * Input file field reference
@@ -93,6 +98,8 @@ export class MapDashboardComponent implements OnInit {
     if(this.mediaObserver.isActive('lt-sm')){
       this.zoomIndex = 3;
     }
+
+    this.connectionService.changedMap$.subscribe( () => this.onMapModified.emit(true));
   }
 
   /**
@@ -133,7 +140,8 @@ export class MapDashboardComponent implements OnInit {
         this.map.deleteConnections();
         const obj = JSON.parse(event.target.result);  
         self.rootNode = obj;
-        this.titleChange.emit(obj.title);       
+        this.titleChange.emit(obj.title);
+        this.onMapModified.emit(false);        
       });
     } 
   }  
@@ -146,6 +154,7 @@ export class MapDashboardComponent implements OnInit {
     const file = new Blob([jsonData], {type: 'text/json'});
     const uri = URL.createObjectURL(file);
     downloadURI(uri, 'map.json');
+    this.onMapModified.emit(false); 
   }
 
   /**

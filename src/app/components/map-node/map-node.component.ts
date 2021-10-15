@@ -114,6 +114,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
 
     this.node.children.push(newNode);
     this.children$.next(this.node.children);
+    this.connectionService.mapChanged();
   }
 
   /**
@@ -154,7 +155,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onNodeAdded(node: MapNode): void {        
     this.connectionService.connect(this.node.id, node.id, node.position === 'left', node.css); 
-    this.connectionService.refresh();
+    this.connectionService.refresh();    
   }
   
   /**
@@ -169,7 +170,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     this.node.children = this.node.children.filter(i => i.id !== id) || []; 
     this.connectionService.disconnect(id);
     this.connectionService.refresh();
-    this.children$.next(this.node.children);    
+    this.children$.next(this.node.children);
+    this.connectionService.mapChanged();    
   }
 
   /**
@@ -181,7 +183,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     const movedNode = this.node.children.filter(i => i.id === id)[0];
     this.recursiveMove(movedNode);    
     this.connectionService.disconnect(id);              
-    this.children$.next(this.node.children);    
+    this.children$.next(this.node.children); 
+    this.connectionService.mapChanged();   
   }
 
   /**
@@ -192,20 +195,14 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     const index = this.node.children.map(n => n.id).indexOf(event.id);
     const position = this.node.children[index].position;
 
-    let swapIndex2 = index;
+    let swapIndex = index;
     if(event.direction === 'up') {
       const swapId = this.node.children.filter((n,i) => n.position === position && i < index).pop()?.id;
-      swapIndex2 = this.node.children.map(n => n.id).indexOf(swapId || '');
+      swapIndex = this.node.children.map(n => n.id).indexOf(swapId || '');
     } else {
       const swapId = this.node.children.filter((n,i) => n.position === position && i > index)[0]?.id;
-      swapIndex2 = this.node.children.map(n => n.id).indexOf(swapId || '');
-    }
-
-    let swapIndex = event.direction === 'up' ? index - 1 : index + 1;
-    swapIndex = swapIndex < 0 ? 0 : swapIndex;
-    swapIndex = swapIndex > this.node.children.length - 1 ? this.node.children.length - 1 : swapIndex;
-
-    swapIndex = swapIndex2;
+      swapIndex = this.node.children.map(n => n.id).indexOf(swapId || '');
+    }     
 
     if (index !== swapIndex) {
       const temp = this.node.children[index];
@@ -215,7 +212,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     
     this.node.children = [...this.node.children];
     this.connectionService.refresh();    
-    this.children$.next(this.node.children);    
+    this.children$.next(this.node.children);
+    this.connectionService.mapChanged();    
   }
 
   /**
@@ -240,7 +238,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   updateTitle(newTitle: string): void {
     this.node.title = newTitle;
-    this.titleChange.emit(newTitle);    
+    this.titleChange.emit(newTitle); 
+    this.connectionService.mapChanged();   
   }
 
   /**
