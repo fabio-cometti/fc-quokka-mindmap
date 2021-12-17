@@ -9,12 +9,15 @@ import { MapNodeComponent } from './components/map-node/map-node.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatIconModule} from '@angular/material/icon';
+import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import { MapDashboardComponent } from './components/map-dashboard/map-dashboard.component';
 import { QuokkerizeComponent } from './components/quokkerize/quokkerize.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment'; 
-import { FlexLayoutModule } from '@angular/flex-layout'; 
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { SaveAsDialogComponent } from './components/save-as-dialog/save-as-dialog.component'; 
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,11 +25,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     MapComponent,
     MapNodeComponent,
     MapDashboardComponent,
-    QuokkerizeComponent
+    QuokkerizeComponent,
+    SaveAsDialogComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
     FontAwesomeModule,
     BrowserAnimationsModule,
     MatTabsModule,
@@ -38,6 +43,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     }),
+    MatDialogModule,
     FlexLayoutModule
   ],
   providers: [],

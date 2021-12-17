@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MediaObserver } from '@angular/flex-layout';
+import { MatDialog } from '@angular/material/dialog';
 import { 
   faSearchPlus, 
   faSearchMinus, 
@@ -20,6 +21,7 @@ import { zoomLevels } from 'src/app/models/zoom-level';
 import { ConnectionService } from 'src/app/services/connection.service';
 import { PwaService } from 'src/app/services/pwa.service';
 import { MapComponent } from '../map/map.component';
+import { SaveAsDialogComponent } from '../save-as-dialog/save-as-dialog.component';
 
 @Component({
   selector: 'fc-map-dashboard',
@@ -89,8 +91,12 @@ export class MapDashboardComponent implements OnInit {
    * @param pwa 
    * @param mediaObserver
    */
-  constructor(private connectionService: ConnectionService, public pwa: PwaService, private mediaObserver: MediaObserver) {
-
+  constructor(
+    private connectionService: ConnectionService, 
+    public pwa: PwaService, 
+    private mediaObserver: MediaObserver,
+    private dialog: MatDialog
+    ) {
   }
 
   ngOnInit(): void { 
@@ -150,11 +156,15 @@ export class MapDashboardComponent implements OnInit {
    * Handle save button click
    */
   save(): void {
-    const jsonData = JSON.stringify(this.rootNode);    
-    const file = new Blob([jsonData], {type: 'text/json'});
-    const uri = URL.createObjectURL(file);
-    downloadURI(uri, 'map.json');
-    this.onMapModified.emit(false); 
+    this.dialog.open(SaveAsDialogComponent, { data: {title: this.rootNode.title + '.json'}}).afterClosed().subscribe( result => {
+      if(!!result) {
+        const jsonData = JSON.stringify(this.rootNode);    
+        const file = new Blob([jsonData], {type: 'text/json'});
+        const uri = URL.createObjectURL(file);
+        downloadURI(uri, result);
+        this.onMapModified.emit(false); 
+      }      
+    });    
   }
 
   /**

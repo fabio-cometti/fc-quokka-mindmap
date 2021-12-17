@@ -138,5 +138,5 @@ export class AppComponent implements OnInit {
 
   onMapModified(modified: boolean): void {
 
-  }
+  }  
 }
