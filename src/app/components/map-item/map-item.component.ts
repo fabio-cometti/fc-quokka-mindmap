@@ -106,7 +106,7 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   /**
    * flag for toolbar visibility
    */
-  showToolbarFlag = false;
+  showToolbarFlag = false;  
 
   /**
    * Default constructor
@@ -114,6 +114,7 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   constructor() { }  
 
   ngOnInit(): void {
+    
   }
 
   ngAfterViewInit(): void {    
@@ -202,5 +203,5 @@ export class MapItemComponent implements OnInit, AfterViewInit {
    */
   moveNodeDown(): void {
     this.sortedNode.emit({id: this.id, direction: 'down'});
-  }
+  } 
 }

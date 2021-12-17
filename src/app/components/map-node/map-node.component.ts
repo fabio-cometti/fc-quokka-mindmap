@@ -239,7 +239,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   updateTitle(newTitle: string): void {
     this.node.title = newTitle;
     this.titleChange.emit(newTitle); 
-    this.connectionService.mapChanged();   
+    this.connectionService.mapChanged();
+    this.connectionService.refresh();  
   }
 
   /**

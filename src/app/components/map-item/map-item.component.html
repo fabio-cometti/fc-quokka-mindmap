@@ -6,9 +6,11 @@
         <input #i *ngIf="state === 'edit'" class="{{css}}" [ngClass]="{root: isRoot}"
             type="text" 
             value="{{title}}" 
-            (keyup.enter)="goToView()" 
+            (keyup.enter)="goToView()"
+            (keyup)="titleChanged($event)" 
             (blur)="goToView()" 
             (change)="titleChanged($event)"/>
+        <div class="live-title">{{title}}</div>
     </div>
     <div class="item-toolbar {{css}}" [ngClass]="{ visible: showToolbarFlag, root: isRoot }">
         <fa-icon (click)="addNode()" [icon]="faPlusCircle" title="New node"></fa-icon>        
