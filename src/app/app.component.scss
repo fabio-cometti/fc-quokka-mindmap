@@ -20,6 +20,14 @@
     .mobile-logo {
         height: 128px;
     }
+
+    .tab-title {
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
 }
 
 fc-quokkerize {

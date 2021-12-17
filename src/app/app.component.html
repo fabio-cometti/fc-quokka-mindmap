@@ -6,7 +6,7 @@
         <mat-tab *ngFor="let tab of tabs; let index = index; trackBy: identify" >
             <ng-template let-modified="true" mat-tab-label>
                 <fa-icon *ngIf="tabs.length > 1" class="close-map" (click)="closeMap(tab.id, index)" [icon]="faWindowClose" title="Close Map"></fa-icon>&nbsp;
-                {{tab.title}}<span *ngIf="tabs[index].modified">*</span>
+                <div class="tab-title">{{tab.title}}</div><span *ngIf="tabs[index].modified">*</span>
             </ng-template>
             <div>                
                 <fc-map-dashboard [initialTitle]="tab.title" (addMap)="addMap()" (getAQuokka)="getAQuokka()" (titleChange)="updateTitle($event, index)" (onMapModified)="tabs[index].modified = $event"></fc-map-dashboard>
