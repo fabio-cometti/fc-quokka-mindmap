@@ -18,6 +18,7 @@ import { environment } from '../environments/environment';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SaveAsDialogComponent } from './components/save-as-dialog/save-as-dialog.component'; 
 import { FormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 @NgModule({
   declarations: [
     AppComponent,
@@ -44,7 +45,8 @@ import { FormsModule } from '@angular/forms';
       registrationStrategy: 'registerWhenStable:30000'
     }),
     MatDialogModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    DragDropModule 
   ],
   providers: [],
   bootstrap: [AppComponent]

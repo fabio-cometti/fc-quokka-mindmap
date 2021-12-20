@@ -33,5 +33,9 @@
             margin-left: 100px;           
             margin-right: 100px;
         }
-    }     
+    } 
+    
+    .cdk-drop-list-receiving {
+        outline: dashed 3px #ff9800;
+    }
 }

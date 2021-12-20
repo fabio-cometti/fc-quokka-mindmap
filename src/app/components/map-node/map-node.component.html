@@ -1,6 +1,6 @@
-<div class="node-container" [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
+<div class="node-container" cdkDrag [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
     
-    <div class="children-container-left">
+    <div class="children-container-left"  cdkDropList cdkDropListSortingDisabled="true">
         <fc-map-node *ngFor="let n of leftNodes$ | async; trackBy: identify; first as isFirst; last as isLast" 
             [node]="n"
             [isFirst]="isFirst"
@@ -32,7 +32,7 @@
         </fc-map-item>
     </div>
 
-    <div class="children-container-right">
+    <div class="children-container-right" cdkDropList cdkDropListSortingDisabled="true">
         <fc-map-node *ngFor="let n of rightNodes$ | async; trackBy: identify; first as isFirst; last as isLast" 
             [node]="n"
             [isFirst]="isFirst"
