@@ -105,9 +105,9 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     const leftNodes = this.node.children.filter(i => i.position === 'left');
     const rightNodes = this.node.children.filter(i => i.position === 'right');
 
-    const rootPosition = leftNodes.length >= rightNodes.length ? 'right' : 'left';
+    const rootPosition = this.getNewFirstLevelNodePoistion(leftNodes.length, rightNodes.length);
 
-    const position = this.node.isRoot ? rootPosition : this.node.position;
+    const position = this.node.isRoot ? rootPosition : this.node.position;    
     const css = this.node.isRoot ? 'conn' + (this.cssIndex++ % 10) : this.node.css;
     
     const newNode = this.connectionService.getNewNode(position, this.node, css, true);
@@ -255,6 +255,14 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   }  
 
   /**
+   * 
+   * @param notes Handle th eupdate of node notes
+   */
+  onNotesChanged(notes: string): void {
+    this.node.notes = notes;
+  }
+
+  /**
    * Uniquely identifies a node in the children list
    * @param index the index of the node
    * @param node the node 
@@ -286,5 +294,17 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
       this.recursiveMove(element);
       this.connectionService.disconnect(element.id);
     });
+  }
+
+  private getNewFirstLevelNodePoistion(leftNodes: number, rightNodes: number) : 'left' | 'right' {
+    const diff = rightNodes - leftNodes;
+
+    if(rightNodes < 4) {
+      return 'right';
+    } else if (leftNodes < 4) {
+      return 'left';
+    } else {
+      return leftNodes >= rightNodes ? 'right' : 'left';
+    }    
   }
 }

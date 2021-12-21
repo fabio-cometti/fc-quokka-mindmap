@@ -8,4 +8,5 @@ export interface MapNode {
     position: 'left' | 'right' | 'center';
     isFirstLevel: boolean;
     isNew: boolean;
+    notes?: string;
 }

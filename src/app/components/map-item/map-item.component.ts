@@ -1,6 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { timer } from 'rxjs';
-import { faPlusCircle, faTrashAlt, faExchangeAlt, faArrowCircleUp, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, faTrashAlt, faExchangeAlt, faArrowCircleUp, faArrowCircleDown, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import { MatDialog } from '@angular/material/dialog';
+import { EditNotesComponent } from '../edit-notes/edit-notes.component';
 
 @Component({
   selector: 'fc-map-item',
@@ -46,6 +48,11 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   @Input('isFirst') isFirst = false;
 
   /**
+   * Notes for the node
+   */
+   @Input('notes') notes = '';
+
+  /**
    * Specify if the node is the last child of its parent
    */
   @Input('isLast') isLast = false; 
@@ -84,6 +91,11 @@ export class MapItemComponent implements OnInit, AfterViewInit {
    * Emit when a node is sorted
    */
   @Output('sortedNode') sortedNode = new EventEmitter<{id: string, direction: 'up' | 'down'}>();
+
+  /**
+   * Emit when the notes change
+   */
+  @Output('notesChanged') notesChanged = new EventEmitter<string>();
   
   /**
    * main container reference
@@ -102,7 +114,8 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   faExchangeAlt = faExchangeAlt;
   faArrowCircleUp = faArrowCircleUp;
   faArrowCircleDown = faArrowCircleDown;
-  
+  faStickyNote = faStickyNote;
+
   /**
    * flag for toolbar visibility
    */
@@ -111,7 +124,7 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   /**
    * Default constructor
    */
-  constructor() { }  
+  constructor(private dialog: MatDialog) { }  
 
   ngOnInit(): void {
     
@@ -204,4 +217,18 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   moveNodeDown(): void {
     this.sortedNode.emit({id: this.id, direction: 'down'});
   } 
+
+  /**
+   * Handle edit notes button click
+   */
+  editNotes(): void {
+    this.dialog.open(EditNotesComponent, { data: {
+      title: this.title,
+      notes: this.notes
+    }}).afterClosed().subscribe(result => {
+      if(!!result && result !== this.notes) {
+        this.notesChanged.emit('' + result);
+      }
+    });
+  }
 }

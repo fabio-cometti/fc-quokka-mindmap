@@ -11,6 +11,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import { MapDashboardComponent } from './components/map-dashboard/map-dashboard.component';
 import { QuokkerizeComponent } from './components/quokkerize/quokkerize.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -18,6 +19,8 @@ import { environment } from '../environments/environment';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SaveAsDialogComponent } from './components/save-as-dialog/save-as-dialog.component'; 
 import { FormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { EditNotesComponent } from './components/edit-notes/edit-notes.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,7 +29,8 @@ import { FormsModule } from '@angular/forms';
     MapNodeComponent,
     MapDashboardComponent,
     QuokkerizeComponent,
-    SaveAsDialogComponent
+    SaveAsDialogComponent,
+    EditNotesComponent
   ],
   imports: [
     BrowserModule,
@@ -37,6 +41,7 @@ import { FormsModule } from '@angular/forms';
     MatTabsModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stable
@@ -44,7 +49,8 @@ import { FormsModule } from '@angular/forms';
       registrationStrategy: 'registerWhenStable:30000'
     }),
     MatDialogModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    DragDropModule 
   ],
   providers: [],
   bootstrap: [AppComponent]
