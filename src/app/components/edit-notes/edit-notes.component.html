@@ -1,0 +1,9 @@
+<div>
+    <h3>Edit notes for {{title}}</h3>
+    <textarea rows="8" cols="40" #i [(ngModel)]="notes" ></textarea>
+    <br />
+    <div class="dialog-buttons">
+        <button mat-raised-button color="primary" (click)="save()"><mat-icon>save</mat-icon>Save</button>
+        <button mat-raised-button color="primary"(click)="cancel()"><mat-icon>cancel</mat-icon>Cancel</button>
+    </div>    
+</div>

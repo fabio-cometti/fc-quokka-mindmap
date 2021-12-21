@@ -97,7 +97,7 @@ export class ConnectionService {
        
     toBlob(containerElement as HTMLElement, {width: containerElement.scrollWidth + 100, height: containerElement.scrollHeight + 50, backgroundColor: '#303030'})
       .then(function (blob) {
-        const blobUrl = URL.createObjectURL(blob);
+        const blobUrl = URL.createObjectURL(blob!);
         window.open(blobUrl, '_blank');
       });
   }
@@ -139,7 +139,8 @@ export class ConnectionService {
       position: 'center' ,     
       children:[] ,
       isFirstLevel: false,
-      isNew: true     
+      isNew: true, 
+      notes: ''    
     }
   }
 
@@ -161,7 +162,8 @@ export class ConnectionService {
       parent: undefined,
       children:[],
       isFirstLevel: parent?.isRoot || false,
-      isNew: isNew
+      isNew: isNew,
+      notes: ''
     }
   }
 

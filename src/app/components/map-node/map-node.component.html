@@ -22,13 +22,15 @@
             [isFirst]="isFirst"
             [isLast]="isLast"
             [state]="node.isNew ? 'edit': 'view'"
+            [notes]="node.notes || ''"
             (titleChange)="updateTitle($event)"                 
             (addedNode)="addChild(('' + node.id))" 
             (nodeDeleted)="deleteNode($event)" 
             (initialized)="onInitialized($event)"
             (changeState)="onChangeState()"
             (movedNode)="moveNode($event)"
-            (sortedNode)="sortNode($event)"> 
+            (sortedNode)="sortNode($event)"
+            (notesChanged)="onNotesChanged($event)"> 
         </fc-map-item>
     </div>
 

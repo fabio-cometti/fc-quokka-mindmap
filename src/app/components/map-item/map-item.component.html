@@ -1,8 +1,11 @@
 <div (mouseenter)="showToolbar()" (mouseleave)="hideToolbar()" class="item-main-container">
-    <div #c class="item {{css}}" id="{{id}}" [ngClass]="{editing: state === 'edit', root: isRoot}" >
+    <div #c class="item {{css}}" id="{{id}}" [ngClass]="{editing: state === 'edit', root: isRoot}" >        
         <span *ngIf="state === 'view'" 
             title="{{title}}" 
-            (dblclick)="goToEdit()">{{title}}</span>
+            (dblclick)="goToEdit()">
+            <fa-icon *ngIf="!!notes" [matTooltip]="notes" matTooltipClass="notes-tooltip" [icon]="faStickyNote"></fa-icon>
+            {{title}}
+        </span>
         <input #i *ngIf="state === 'edit'" class="{{css}}" [ngClass]="{root: isRoot}"
             type="text" 
             value="{{title}}" 
@@ -18,5 +21,6 @@
         <fa-icon *ngIf="isFirstLevel" (click)="moveNode()" [icon]="faExchangeAlt" title="Move branch"></fa-icon>
         <fa-icon *ngIf="!isRoot && !isFirst" (click)="moveNodeUp()" [icon]="faArrowCircleUp" title="Move up"></fa-icon>
         <fa-icon *ngIf="!isRoot && !isLast" (click)="moveNodeDown()" [icon]="faArrowCircleDown" title="Move down"></fa-icon>
+        <fa-icon [icon]="faStickyNote" (click)="editNotes()" title="Notes"></fa-icon>
     </div>    
 </div>
