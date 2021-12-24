@@ -1,5 +1,6 @@
 .node-container {
-    display: flex;    
+    display: flex; 
+    position: relative;   
 
     &.left {
         justify-content: flex-end; 
@@ -35,7 +36,15 @@
         }
     } 
     
-    .cdk-drop-list-receiving {
-        outline: dashed 3px #ff9800;
+    .main-item-container {
+        
+        fc-map-node {
+            display: none;    
+            
+        }
+    }
+
+    .main-item-container fc-map-node {
+        display: none;        
     }
 }

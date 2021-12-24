@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material/dialog';
 import { 
@@ -14,11 +14,12 @@ import {
   faGift, 
   faCog 
 } from '@fortawesome/free-solid-svg-icons';
-import { timer } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { downloadURI } from 'src/app/core/utils';
 import { MapNode } from 'src/app/models/map-item';
 import { zoomLevels } from 'src/app/models/zoom-level';
 import { ConnectionService } from 'src/app/services/connection.service';
+import { MapManagerService } from 'src/app/services/map-manager.service';
 import { PwaService } from 'src/app/services/pwa.service';
 import { MapComponent } from '../map/map.component';
 import { SaveAsDialogComponent } from '../save-as-dialog/save-as-dialog.component';
@@ -27,10 +28,12 @@ import { SaveAsDialogComponent } from '../save-as-dialog/save-as-dialog.componen
   selector: 'fc-map-dashboard',
   templateUrl: './map-dashboard.component.html',
   styleUrls: ['./map-dashboard.component.scss'],
-  providers: [ConnectionService]
+  providers: [MapManagerService]
 })
-export class MapDashboardComponent implements OnInit {
+export class MapDashboardComponent implements OnInit, OnDestroy {
 
+  subcriptions: Subscription = new Subscription();
+  
   //Icons
   
   faSearchPlus = faSearchPlus;
@@ -91,21 +94,28 @@ export class MapDashboardComponent implements OnInit {
    * @param pwa 
    * @param mediaObserver
    */
-  constructor(
-    private connectionService: ConnectionService, 
+  constructor(     
     public pwa: PwaService, 
     private mediaObserver: MediaObserver,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private mapManager: MapManagerService
     ) {
-  }
+  } 
 
-  ngOnInit(): void { 
-    this.rootNode = this.connectionService.getNewRootNode(this.initialTitle);
+  ngOnInit(): void {    
+    this.rootNode = this.mapManager.getNewRootNode(this.initialTitle);
+    this.mapManager.setNewRootNode(this.rootNode);
+    
     if(this.mediaObserver.isActive('lt-sm')){
       this.zoomIndex = 3;
     }
 
-    this.connectionService.changedMap$.subscribe( () => this.onMapModified.emit(true));
+    //Register
+    this.subcriptions.add(this.mapManager.mapChanged$.subscribe( () => this.onMapModified.emit(true)));
+  }
+
+  ngOnDestroy(): void {
+    this.subcriptions.unsubscribe();
   }
 
   /**
@@ -146,6 +156,7 @@ export class MapDashboardComponent implements OnInit {
         this.map.deleteConnections();
         const obj = JSON.parse(event.target.result);  
         self.rootNode = obj;
+        self.mapManager.setNewRootNode(obj); //Reset the map manager to the new map
         this.titleChange.emit(obj.title);
         this.onMapModified.emit(false);        
       });
@@ -171,21 +182,24 @@ export class MapDashboardComponent implements OnInit {
    * Handle export as PNG button click
    */
   exportAsPNG(): void {
-    this.connectionService.exportAsPng();
+    //this.connectionService.exportAsPng();
+    this.mapManager.exportAsPng();
   }
 
   /**
    * Handle export as SVG button click
    */
   exportAsSVG(): void {
-    this.connectionService.exportAsSVG();
+    //this.connectionService.exportAsSVG();
+    this.mapManager.exportAsSVG();
   }
 
   /**
    * Handle preview button click
    */
   preview(): void {
-    this.connectionService.preview();
+    //this.connectionService.preview();
+    this.mapManager.preview();
   }
 
   /**

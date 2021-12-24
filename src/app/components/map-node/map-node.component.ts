@@ -1,8 +1,13 @@
-import { BehaviorSubject, timer } from 'rxjs';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { ConnectionService } from 'src/app/services/connection.service';
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MapNode } from 'src/app/models/map-item';
-import { map } from 'rxjs/operators';
+import { delay, filter, map, switchMap, tap } from 'rxjs/operators';
+import { LocalConnectionService } from 'src/app/services/local-connection.service';
+import { MapManagerService } from 'src/app/services/map-manager.service';
+import { CdkDragDrop, CdkDragEnter, CdkDragExit } from '@angular/cdk/drag-drop';
+import cloneDeep from 'lodash-es/cloneDeep';
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Component used for rendering a node and all his child
@@ -11,13 +16,19 @@ import { map } from 'rxjs/operators';
   selector: 'fc-map-node',
   templateUrl: './map-node.component.html',
   styleUrls: ['./map-node.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers:[LocalConnectionService]
 })
 export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked {
-
-  private cssIndex = 0;
+  
   private inputChanged = false;  
   private children$ = new BehaviorSubject<MapNode[]>([]);
+  public isHover = false;
+
+  /**
+   * Reference to the canvas
+   */
+   @ViewChild('c') c!: ElementRef; 
   
   /**
    * Nodes on the left of the parent node
@@ -28,6 +39,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * Nodes on the right of the parent node
    */
   rightNodes$ = this.children$.asObservable().pipe(map(children => children.filter(n => n.position === 'right')));
+
+  allIds$!: Observable<string[]>; 
 
   /**
    * The node
@@ -74,14 +87,33 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * Default constructor
    * @param connectionService 
    */
-  constructor(private connectionService: ConnectionService) { }
+  constructor(    
+    private mapManager: MapManagerService,
+    private localConnection: LocalConnectionService
+  ) { }
 
   
   ngOnInit(): void {
-    this.children$.next(this.node.children);
+    this.allIds$ = this.mapManager.allIds$.pipe(map(arr => arr.filter(id => id !== 'L-' + this.node.id)));
+    this.localConnection.setNode(this.node);
+    this.children$.next(this.node.children); 
+    
+    this.mapManager.mockingNode$.pipe(filter(mock=> this.node.id === mock.parentId)).subscribe(mock => {
+      this.children$.next(this.node.children); 
+    });
+
+    this.mapManager.demockingNode$.pipe(
+      filter(mock=> this.node.id === mock.parentId),
+      tap(mock => this.children$.next(this.node.children)),
+      delay(0)
+    ).subscribe(mock => {      
+      this.children$.next(this.node.children);      
+      this.localConnection.connect(this.node.id, mock.originalId, this.node.position === 'left', this.node.css); 
+    });
   }
 
   ngAfterViewInit(): void {
+    this.localConnection.setContainer(this.c);
     this.refresh();
   }
 
@@ -100,21 +132,9 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * Add a child node to the current node
    * @param id id of the node
    */
-  addChild(id: string): void {  
-    
-    const leftNodes = this.node.children.filter(i => i.position === 'left');
-    const rightNodes = this.node.children.filter(i => i.position === 'right');
-
-    const rootPosition = this.getNewFirstLevelNodePoistion(leftNodes.length, rightNodes.length);
-
-    const position = this.node.isRoot ? rootPosition : this.node.position;    
-    const css = this.node.isRoot ? 'conn' + (this.cssIndex++ % 10) : this.node.css;
-    
-    const newNode = this.connectionService.getNewNode(position, this.node, css, true);
-
-    this.node.children.push(newNode);
-    this.children$.next(this.node.children);
-    this.connectionService.mapChanged();
+  addChild(id: string): void { 
+    this.mapManager.addChild(this.node); 
+    this.children$.next(this.node.children);    
   }
 
   /**
@@ -153,9 +173,10 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * Handle the adding of a child node. Connect the current node with the created child
    * @param node 
    */
-  onNodeAdded(node: MapNode): void {        
-    this.connectionService.connect(this.node.id, node.id, node.position === 'left', node.css); 
-    this.connectionService.refresh();    
+  onNodeAdded(node: MapNode): void {
+    console.log(node.id);        
+    this.localConnection.connect(this.node.id, node.id, node.position === 'left', node.css); 
+    this.localConnection.refresh();    
   }
   
   /**
@@ -164,27 +185,19 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onNodeDeleted(id: string): void {        
     
-    const deletedNode = this.node.children.filter(i => i.id === id)[0];
-    this.recursiveDeletion(deletedNode);
-    
-    this.node.children = this.node.children.filter(i => i.id !== id) || []; 
-    this.connectionService.disconnect(id);
-    this.connectionService.refresh();
+    this.mapManager.deleteChild(id, this.node); 
     this.children$.next(this.node.children);
-    this.connectionService.mapChanged();    
+    this.localConnection.refresh();       
   }
 
   /**
    * Handle the event of moving a node from left to right or vice-versa
    * @param id the id of the moved node
    */
-  onNodeMoved(id: string): void {        
-    
-    const movedNode = this.node.children.filter(i => i.id === id)[0];
-    this.recursiveMove(movedNode);    
-    this.connectionService.disconnect(id);              
-    this.children$.next(this.node.children); 
-    this.connectionService.mapChanged();   
+  onNodeMoved(id: string): void { 
+    this.mapManager.moveChild(id, this.node);
+    this.children$.next(this.node.children);
+    this.localConnection.refresh(); 
   }
 
   /**
@@ -192,28 +205,9 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * @param event 
    */
   onNodeSorted(event: {id: string, direction: 'up' | 'down'}): void { 
-    const index = this.node.children.map(n => n.id).indexOf(event.id);
-    const position = this.node.children[index].position;
-
-    let swapIndex = index;
-    if(event.direction === 'up') {
-      const swapId = this.node.children.filter((n,i) => n.position === position && i < index).pop()?.id;
-      swapIndex = this.node.children.map(n => n.id).indexOf(swapId || '');
-    } else {
-      const swapId = this.node.children.filter((n,i) => n.position === position && i > index)[0]?.id;
-      swapIndex = this.node.children.map(n => n.id).indexOf(swapId || '');
-    }     
-
-    if (index !== swapIndex) {
-      const temp = this.node.children[index];
-      this.node.children[index] = this.node.children[swapIndex];
-      this.node.children[swapIndex] = temp;
-    }   
-    
-    this.node.children = [...this.node.children];
-    this.connectionService.refresh();    
+    this.mapManager.sortNode(event.id, event.direction, this.node);
     this.children$.next(this.node.children);
-    this.connectionService.mapChanged();    
+    this.localConnection.refresh();
   }
 
   /**
@@ -221,7 +215,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onChangeState(): void {
     this.node.isNew = false;
-    this.connectionService.refresh();
+    this.localConnection.refresh();
   }
 
   /**
@@ -239,8 +233,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   updateTitle(newTitle: string): void {
     this.node.title = newTitle;
     this.titleChange.emit(newTitle); 
-    this.connectionService.mapChanged();
-    this.connectionService.refresh();  
+    this.mapManager.mapChanged();
+    this.localConnection.refresh();  
   }
 
   /**
@@ -248,10 +242,10 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   refresh(): void {  
     this.node.children.forEach(element => {
-      this.connectionService.connect('' + this.node.id, element.id, element.position === 'left', element.css);      
+      this.localConnection.connect('' + this.node.id, element.id, element.position === 'left', element.css);      
     });     
 
-    this.connectionService.refresh();
+    this.localConnection.refresh();
   }  
 
   /**
@@ -260,6 +254,29 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onNotesChanged(notes: string): void {
     this.node.notes = notes;
+  }  
+
+  onDropEnter(event: CdkDragEnter<any>): void {
+    if(event.container.id !== event.item.dropContainer.id) {
+      this.isHover = true;
+      const clone = cloneDeep(event.item.data) as MapNode;
+      clone.temp = true;      
+      this.mapManager.mockNode(clone);
+    }
+    
+  }
+
+  onDropExit(event: CdkDragExit<any>): void {
+    if(event.container.id !== event.item.dropContainer.id) {
+      this.isHover = false;
+      this.mapManager.removeMockNode(event.item.data);
+    }
+  }
+
+  onDropped(event: CdkDragDrop<any, any>): void {
+    this.isHover = false;
+    this.mapManager.removeAllMockNodes();
+    //console.log(this.node.id);
   }
 
   /**
@@ -269,42 +286,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * @returns the unique id of the node
    */
   identify(index: number, node: MapNode): string {
-    return node.id;
+    return node.id + node.uniqueIdentifier;    
   }
-
-  /**
-   * Recursively delete a node and all his children
-   * @param node the node
-   */
-  private recursiveDeletion(node: MapNode): void {
-    node.children.forEach(element => {
-      this.recursiveDeletion(element);
-      this.connectionService.disconnect(element.id);
-    });
-  }
-
-  
-  /**
-   * Recursively move a node from left to right or vice-versa
-   * @param node the node
-   */
-  private recursiveMove(node: MapNode): void {
-    node.position = node.position === 'left' ? 'right' : 'left';     
-    node.children.forEach(element => {
-      this.recursiveMove(element);
-      this.connectionService.disconnect(element.id);
-    });
-  }
-
-  private getNewFirstLevelNodePoistion(leftNodes: number, rightNodes: number) : 'left' | 'right' {
-    const diff = rightNodes - leftNodes;
-
-    if(rightNodes < 4) {
-      return 'right';
-    } else if (leftNodes < 4) {
-      return 'left';
-    } else {
-      return leftNodes >= rightNodes ? 'right' : 'left';
-    }    
-  }
+    
 }

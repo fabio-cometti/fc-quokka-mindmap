@@ -2,6 +2,7 @@ import { MapNodeComponent } from './../map-node/map-node.component';
 import { MapNode } from './../../models/map-item';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ConnectionService } from 'src/app/services/connection.service';
+import { MapManagerService } from 'src/app/services/map-manager.service';
 
 /**
  * Component for manage the map canvas
@@ -39,17 +40,17 @@ export class MapComponent implements AfterViewInit  {
    * Default constructor
    * @param connectionService  
    */
-  constructor(private connectionService: ConnectionService) { }    
+  constructor(private mapManager: MapManagerService) { }    
 
-  ngAfterViewInit(): void {
-    this.connectionService.setContainer(this.c);    
+  ngAfterViewInit(): void {    
+    this.mapManager.setContainer(this.c);    
   }  
 
   /**
    * Delete all connections
    */
-  deleteConnections(): void {
-    this.connectionService.disconnectAll(this.node.id);
+  deleteConnections(): void {    
+    this.mapManager.disconnectAll();
   }
 
   /**

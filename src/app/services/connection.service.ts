@@ -152,16 +152,16 @@ export class ConnectionService {
    * @param isNew A boolean for just added nodes. 
    * @returns a new MapNode
    */
-  getNewNode(position: 'left' | 'right' | 'center', parent: MapNode | null = null, css: string | null = null, isNew = false): MapNode {
+  getNewNode(position: 'left' | 'right' | 'center', parentId: string | undefined = undefined , css: string | undefined = undefined, isNew = false, isFirstLevel: boolean = false): MapNode {
     return {      
       id: uuidv4(),
       title: 'New',
       isRoot: false,
-      css: !!css ? css : undefined,
+      css: css,
       position: position,
-      parent: undefined,
+      parentId: undefined,
       children:[],
-      isFirstLevel: parent?.isRoot || false,
+      isFirstLevel: isFirstLevel,
       isNew: isNew,
       notes: ''
     }

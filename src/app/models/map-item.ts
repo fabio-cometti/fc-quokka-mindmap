@@ -3,10 +3,12 @@ export interface MapNode {
     title: string;
     isRoot: boolean;
     css?: string;
-    parent?: MapNode;
+    parentId?: string | undefined;
     children: MapNode[];
     position: 'left' | 'right' | 'center';
     isFirstLevel: boolean;
     isNew: boolean;
     notes?: string;
+    temp?: boolean;
+    uniqueIdentifier?: string | null | undefined;
 }

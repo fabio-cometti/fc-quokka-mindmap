@@ -15,7 +15,7 @@ export class MapItemComponent implements OnInit, AfterViewInit {
   /**
    * Id of the node
    */
-  @Input('id') id: string = '';
+  @Input('nodeId') id: string = '';
   
   /**
    * Specify if a node is a root
