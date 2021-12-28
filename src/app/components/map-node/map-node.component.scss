@@ -12,8 +12,7 @@
       
     .children-container {
         display: flex;
-        flex-direction: column;
-        height: 100%;  
+        flex-direction: column;         
         justify-content: end;
     }
 
@@ -34,17 +33,17 @@
             margin-left: 100px;           
             margin-right: 100px;
         }
-    } 
-    
-    .main-item-container {
+    }   
+
+    .children-container-left {  
+        justify-content: start;
         
-        fc-map-node {
-            display: none;    
-            
+        &.first-level {
+            justify-content: end;
         }
     }
-
-    .main-item-container fc-map-node {
-        display: none;        
+      
+    .children-container-right {  
+        justify-content: start;
     }
 }

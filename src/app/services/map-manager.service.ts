@@ -23,13 +23,7 @@ export class MapManagerService {
    * Subject for disconnect all
    */
   private disconnectAllSubject = new Subject<void>();
-  public disconnectAll$ = this.disconnectAllSubject.asObservable();
-
-  /**
-   * Subject for disconnect all
-   */
-  private nodeRefreshedSubject = new Subject<string>();
-  public nodeRefreshed$ = this.nodeRefreshedSubject.asObservable();
+  public disconnectAll$ = this.disconnectAllSubject.asObservable();  
 
   /**
    * Subject for disconnect node
@@ -47,27 +41,19 @@ export class MapManagerService {
    * Subject for all IDs
    */
   private allIdsSubject = new BehaviorSubject<string[]>([]);
-  public allIds$ = this.allIdsSubject.asObservable();
+  public allIds$ = this.allIdsSubject.asObservable();  
 
   /**
-   * Subject for mocking node
+   * Subject for detached node
    */
-  private mockingNodeSubject = new Subject<{
-    parentId: string;
-    originalId: string;
-    cloneId: string;
-  }>();
-  public mockingNode$ = this.mockingNodeSubject.asObservable();
+  private nodeDetachedSubject = new Subject<string>();
+  public nodeDetached$ = this.nodeDetachedSubject.asObservable(); 
 
   /**
-   * Subject for mocking node
+   * Subject for repaint all event
    */
-  private demockingNodeSubject = new Subject<{
-    parentId: string;
-    originalId: string;
-    cloneId: string;
-  }>();
-  public demockingNode$ = this.demockingNodeSubject.asObservable();
+   private repaintAllSubject = new Subject<void>();
+   public repaintAll$ = this.repaintAllSubject.asObservable();
 
   constructor() {}
 
@@ -81,14 +67,13 @@ export class MapManagerService {
     } else {
       throw "Container already set for the map";
     }
-  }
+  }  
 
   /**
-   * Force node refresh
-   * @param parentNode
+   * Repaint all nodes
    */
-  refreshNode(id: string): void {
-    this.nodeRefreshedSubject.next(id);
+  repaintAll() {
+    this.repaintAllSubject.next();
   }
 
   /**
@@ -104,7 +89,7 @@ export class MapManagerService {
   addChild(parentNode: MapNode): MapNode {
     const newNode = this.getNodeChild(parentNode);
     if (newNode.isFirstLevel && newNode.position == "left") {
-      parentNode.children.splice(0, 0, newNode);
+      parentNode.children.splice(0, 0, newNode);      
     } else {
       parentNode.children.push(newNode);
     }
@@ -150,13 +135,19 @@ export class MapManagerService {
    * @param node the node
    */
   private recursiveMove(node: MapNode): void {
-    node.position = node.position === "left" ? "right" : "left";
+    node.position = node.position === "left" ? "right" : "left";    
     node.children.forEach((element) => {
       this.recursiveMove(element);
       this.disconnectNodeSubject.next(element.id);
     });
   }
 
+  /**
+   * Sort a node inside his branch
+   * @param id 
+   * @param direction 
+   * @param parentNode 
+   */
   sortNode(id: string, direction: "up" | "down", parentNode: MapNode): void {
     const index = parentNode.children.map((n) => n.id).indexOf(id);
     const position = parentNode.children[index].position;
@@ -190,53 +181,46 @@ export class MapManagerService {
   disconnectAll(): void {
     this.disconnectAllSubject.next();
   }
+
+  /**
+   * Remove a node from the current parent and append it to a new parent
+   * @param newTarget
+   * @param nodeId 
+   */
+  appendToNewParent(newTarget: MapNode, nodeId: string): void {
+    const currentParentNode = this.findParentNode(nodeId, this.rootNode);
+    const currentNode = currentParentNode?.children.filter(n => n.id == nodeId)[0];
+    
+    if(!!currentParentNode) {
+      this.deleteChild(nodeId, currentParentNode);
+      this.nodeDetachedSubject.next(currentParentNode.id);
+    } 
+    
+    if(!newTarget.isRoot && newTarget.css !== currentNode?.css) {
+      this.recursivUpdateCss(currentNode!, newTarget.css || '');
+    }
+    
+    if(!newTarget.isRoot && newTarget.position !== currentNode?.position) {
+      this.recursiveMove(currentNode!);      
+    }    
+
+    newTarget.children.push(currentNode!);
+    this.mapChanged();
+  }  
   
-  /* #endregion */
-
-  /* #region Mocking */
-
-  mockNode(mapNode: MapNode): void {
-    const parent = this.findParentNode(mapNode.parentId || "", this.rootNode);
-    const id = mapNode.id;
-    mapNode.id = "T-" + mapNode.id;
-
-    const index = parent!.children.findIndex((n) => n.id === id);
-    if (index > -1) {
-      parent?.children.splice(index + 1, 0, mapNode);
-      this.mockingNodeSubject.next({
-        parentId: parent?.id || "",
-        originalId: id,
-        cloneId: mapNode.id,
-      });
-      this.refreshNode(parent?.id || "");
-    }
-  }
-
-  removeMockNode(mapNode: MapNode): void {
-    const parent = this.findParentNode(mapNode.parentId || "", this.rootNode);
-    parent!.children = parent!.children.filter((n) => !n.temp);
-    mapNode.uniqueIdentifier = uuidv4();
-    this.demockingNodeSubject.next({
-      parentId: parent?.id || "",
-      originalId: mapNode.id,
-      cloneId: "T-" + mapNode.id,
-    });
-    this.refreshNode(parent?.id || "");
-  }
-
-  removeAllMockNodes(mapNode: MapNode | null = null): void {
-    if (mapNode == null) {
-      mapNode = this.rootNode;
-    }
-    mapNode.children = mapNode.children.filter((n) => !n.temp);
-    this.refreshNode(mapNode.id);
-
-    mapNode.children.forEach((element) => {
-      this.removeAllMockNodes(element);
+  /**
+   * Update the css of a node for keeping it in sync with his (new) parent
+   * @param currentNode 
+   * @param css 
+   */
+  recursivUpdateCss(currentNode: MapNode, css: string) {
+    currentNode.css = css;    
+    currentNode.children.forEach((element) => {
+      this.recursivUpdateCss(element, css);      
     });
   }
 
-  /* #endregion */
+  /* #endregion */  
 
   /* #region  New Node */
 
@@ -323,13 +307,11 @@ export class MapManagerService {
         (i) => i.position === "right"
       ).length;
 
-      if (rightNodes < 4) {
+      if (rightNodes < 5) {
         return "right";
-      } else if (leftNodes < 4) {
-        return "left";
       } else {
-        return leftNodes >= rightNodes ? "right" : "left";
-      }
+        return "left";
+      } 
     } else {
       return parentNode.position;
     }
@@ -394,6 +376,31 @@ export class MapManagerService {
 
   /* #endregion */
 
+  /**
+   * Get all valid destinations for a dragged node
+   * @param startNodeId 
+   * @param mapNode 
+   * @returns 
+   */
+  getAllDestinations(startNodeId: string, mapNode: MapNode | null = null): string[]{
+    let ids: string[] = [];
+
+    if(startNodeId !== this.rootNode.id) {
+      if(mapNode == null) {
+        mapNode = this.rootNode;
+      }
+  
+      mapNode.children.forEach((element) => {
+        if(element.id !== startNodeId) {
+          ids = ids.concat(this.getAllDestinations(startNodeId,element));
+        }      
+      });
+      ids.push(mapNode.id);
+    }    
+    
+    return ids;
+  }
+  
   private getAllIds(mapNode: MapNode): string[] {
     let ids: string[] = [];
 
@@ -404,20 +411,19 @@ export class MapManagerService {
     return ids;
   }
 
-  private findParentNode(parentId: string, mapNode: MapNode): MapNode | null {
-    if (mapNode.id === parentId) {
-      return mapNode;
+  private findParentNode(id: string, mapNode: MapNode): MapNode | null {
+    
+    let node:  MapNode | null = null;
+    if(mapNode.children.map(n => n.id).indexOf(id) > -1) {
+      node = mapNode;
     } else if (mapNode.children.length > 0) {
-      let node: MapNode | null = null;
       for (let i = 0; i < mapNode.children.length; i++) {
-        node = this.findParentNode(parentId, mapNode.children[i]);
+        node = this.findParentNode(id, mapNode.children[i]);
         if (!!node) {
           break;
         }
-      }
-      return node;
-    } else {
-      return null;
+      }      
     }
+    return node;    
   }
 }

@@ -15,7 +15,7 @@
             (change)="titleChanged($event)"/>
         <div class="live-title">{{title}}</div>
     </div>
-    <div class="item-toolbar {{css}}" [ngClass]="{ visible: showToolbarFlag, root: isRoot }">
+    <div class="item-toolbar {{css}}" [ngClass]="{ visible: showToolbarFlag, root: isRoot, left: position === 'left' }">
         <fa-icon (click)="addNode()" [icon]="faPlusCircle" title="New node"></fa-icon>        
         <fa-icon *ngIf="!isRoot" (click)="deleteNode()" [icon]="faTrashAlt" title="Delete"></fa-icon>
         <fa-icon *ngIf="isFirstLevel" (click)="moveNode()" [icon]="faExchangeAlt" title="Move branch"></fa-icon>

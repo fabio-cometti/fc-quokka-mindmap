@@ -1,13 +1,10 @@
-<div class="node-container" #c [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
+<div class="node-container" #c
+    [draggable]="!node.isRoot" 
+    (dragstart)="dragStart($event)"
+    [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
     
-    <div class="children-container-left" *ngIf="node.position !== 'right'"
-        [id]="'inner-' + node.id" 
-        cdkDropList
-        [cdkDropListConnectedTo]="(allIds$ | async) || []"
-        [cdkDropListSortingDisabled]="true">
-        <fc-map-node *ngFor="let n of leftNodes$ | async; trackBy: identify; first as isFirst; last as isLast"
-            cdkDrag
-            [cdkDragData]="n"
+    <div class="children-container children-container-left" *ngIf="node.position !== 'right'" [ngClass]="{'first-level': node.isRoot}">
+        <fc-map-node *ngFor="let n of leftNodes$ | async; trackBy: identify; first as isFirst; last as isLast"            
             [node]="n"            
             [isFirst]="isFirst"
             [isLast]="isLast"
@@ -20,16 +17,14 @@
 
     <div class="main-item-container" [ngClass]="{'left': node.position == 'left', 'right': node.position == 'right', 'center': node.position == 'center'}">
         <fc-map-item 
-            [ngClass]="{'isHover': isHover}"
-            cdkDropList 
-            [cdkDropListSortingDisabled]="true"            
-            [id]="'L-' + node.id" 
-            (cdkDropListEntered)="onDropEnter($event)"
-            (cdkDropListExited)="onDropExit($event)"
-            (cdkDropListDropped)="onDropped($event)"
+            (dragover)="dragOver($event)"
+            (drop)="drop($event)"
+            (dragleave)="dragOut($event)"
+            [ngClass]="{'isHover': isHover}"            
             [nodeId]="('' + node.id)" 
             [title]="('' + node.title)" 
             [isRoot]="node.isRoot"
+            [position]="node.position"
             [css]="node.css || 'conn'"
             [isFirstLevel]="node.isFirstLevel"
             [isFirst]="isFirst"
@@ -43,18 +38,13 @@
             (changeState)="onChangeState()"
             (movedNode)="moveNode($event)"
             (sortedNode)="sortNode($event)"
-            (notesChanged)="onNotesChanged($event)"> 
+            (notesChanged)="onNotesChanged($event)"            
+            > 
         </fc-map-item>
     </div>
 
-    <div class="children-container-right" *ngIf="node.position !== 'left'"
-        [id]="'inner-' + node.id" 
-        cdkDropList
-        [cdkDropListConnectedTo]="(allIds$ | async) || []"
-        [cdkDropListSortingDisabled]="true">
-        <fc-map-node *ngFor="let n of rightNodes$ | async; trackBy: identify; first as isFirst; last as isLast" 
-            cdkDrag
-            [cdkDragData]="n"
+    <div class="children-container children-container-right" *ngIf="node.position !== 'left'">
+        <fc-map-node *ngFor="let n of rightNodes$ | async; trackBy: identify; first as isFirst; last as isLast"             
             [node]="n"
             [isFirst]="isFirst"
             [isLast]="isLast"
@@ -64,5 +54,4 @@
             (nodeSorted)="onNodeSorted($event)">
         </fc-map-node>        
     </div>
-
 </div>

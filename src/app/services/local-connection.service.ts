@@ -28,16 +28,8 @@ export class LocalConnectionService implements OnDestroy {
   
   constructor(private mapManager: MapManagerService) { 
     this.subscriptions.add(this.mapManager.disconnectAll$.subscribe(() => this.disconnectAll()));
-    this.subscriptions.add(this.mapManager.nodeRefreshed$.pipe(filter(id => this.node.id === id)).subscribe(() => this.refresh()));
-    this.subscriptions.add(this.mapManager.disconnectNode$.subscribe(id => this.disconnect(id)));
-    this.subscriptions.add(this.mapManager.mockingNode$.pipe(filter(mock=> this.node.id === mock.parentId)).subscribe(mock => {
-      this.disconnect(mock.originalId);
-      
-    }));
-
-    this.subscriptions.add(this.mapManager.demockingNode$.pipe(filter(mock=> this.node.id === mock.parentId)).subscribe(mock => {
-      this.disconnect(mock.cloneId);      
-    }));
+    this.subscriptions.add(this.mapManager.disconnectNode$.subscribe(id => this.disconnect(id)));    
+    this.subscriptions.add(this.mapManager.repaintAll$.subscribe(() => this.refreshLocally()));
   }  
 
   ngOnDestroy(): void {
@@ -78,15 +70,15 @@ export class LocalConnectionService implements OnDestroy {
       this.jsPlumbInstance.remove(conn.sourceId);
     }); 
     this.jsPlumbInstance.repaintEverything();
-  }
+  }  
 
   /**
-   * Refresh and repaint the whole map
+   *  Refresh local node
    */
-  refresh(): void {
+  refreshLocally(): void {
     timer(0).subscribe(() => {
       this.jsPlumbInstance.repaintEverything();
-      this.mapManager.refreshNode(this.node.parentId || '');
+      console.log('refresh');      
     });
   }
 
@@ -98,6 +90,10 @@ export class LocalConnectionService implements OnDestroy {
     this.jsPlumbInstance.setContainer(container.nativeElement);    
   }
 
+  /**
+   * 
+   * @param node Set the root node associated with the service
+   */
   setNode(node: MapNode): void {
     this.node = node;
   }

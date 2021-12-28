@@ -26,6 +26,11 @@ export class MapItemComponent implements OnInit, AfterViewInit {
    * CSS class for the node
    */
   @Input('css') css: string = 'conn';
+
+  /**
+   * Position of the node
+   */
+   @Input('position') position: 'left' | 'right' | 'center' = 'right';
   
   /**
    * Title of the node

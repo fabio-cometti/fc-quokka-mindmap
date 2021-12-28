@@ -39,14 +39,6 @@
         &.zoom1_0 {
           transform-origin: 0 0;
           transform: scale(1.0);
-        }
-        
-        .children-container-left {  
-            justify-content: end;
-        }
-          
-        .children-container-right {  
-            justify-content: start;
-        }
+        }    
     }
 }

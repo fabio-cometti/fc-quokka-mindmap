@@ -8,6 +8,7 @@ import { MapManagerService } from 'src/app/services/map-manager.service';
 import { CdkDragDrop, CdkDragEnter, CdkDragExit } from '@angular/cdk/drag-drop';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { v4 as uuidv4 } from "uuid";
+import { ConstantPool } from '@angular/compiler';
 
 /**
  * Component used for rendering a node and all his child
@@ -97,19 +98,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     this.allIds$ = this.mapManager.allIds$.pipe(map(arr => arr.filter(id => id !== 'L-' + this.node.id)));
     this.localConnection.setNode(this.node);
     this.children$.next(this.node.children); 
-    
-    this.mapManager.mockingNode$.pipe(filter(mock=> this.node.id === mock.parentId)).subscribe(mock => {
-      this.children$.next(this.node.children); 
-    });
-
-    this.mapManager.demockingNode$.pipe(
-      filter(mock=> this.node.id === mock.parentId),
-      tap(mock => this.children$.next(this.node.children)),
-      delay(0)
-    ).subscribe(mock => {      
-      this.children$.next(this.node.children);      
-      this.localConnection.connect(this.node.id, mock.originalId, this.node.position === 'left', this.node.css); 
-    });
+    this.mapManager.nodeDetached$.pipe(filter(id => id === this.node.id)).subscribe(() => this.children$.next(this.node.children));   
   }
 
   ngAfterViewInit(): void {
@@ -173,10 +162,9 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    * Handle the adding of a child node. Connect the current node with the created child
    * @param node 
    */
-  onNodeAdded(node: MapNode): void {
-    console.log(node.id);        
-    this.localConnection.connect(this.node.id, node.id, node.position === 'left', node.css); 
-    this.localConnection.refresh();    
+  onNodeAdded(node: MapNode): void {          
+    this.localConnection.connect(this.node.id, node.id, node.position === 'left', node.css);     
+    this.mapManager.repaintAll(); 
   }
   
   /**
@@ -187,7 +175,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     
     this.mapManager.deleteChild(id, this.node); 
     this.children$.next(this.node.children);
-    this.localConnection.refresh();       
+    this.mapManager.repaintAll();        
   }
 
   /**
@@ -197,7 +185,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   onNodeMoved(id: string): void { 
     this.mapManager.moveChild(id, this.node);
     this.children$.next(this.node.children);
-    this.localConnection.refresh(); 
+    this.mapManager.repaintAll();  
   }
 
   /**
@@ -207,7 +195,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   onNodeSorted(event: {id: string, direction: 'up' | 'down'}): void { 
     this.mapManager.sortNode(event.id, event.direction, this.node);
     this.children$.next(this.node.children);
-    this.localConnection.refresh();
+    this.mapManager.repaintAll(); 
   }
 
   /**
@@ -215,7 +203,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onChangeState(): void {
     this.node.isNew = false;
-    this.localConnection.refresh();
+    this.mapManager.repaintAll(); 
   }
 
   /**
@@ -234,7 +222,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     this.node.title = newTitle;
     this.titleChange.emit(newTitle); 
     this.mapManager.mapChanged();
-    this.localConnection.refresh();  
+    this.mapManager.repaintAll();   
   }
 
   /**
@@ -243,9 +231,8 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   refresh(): void {  
     this.node.children.forEach(element => {
       this.localConnection.connect('' + this.node.id, element.id, element.position === 'left', element.css);      
-    });     
-
-    this.localConnection.refresh();
+    }); 
+    this.mapManager.repaintAll(); 
   }  
 
   /**
@@ -254,29 +241,54 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   onNotesChanged(notes: string): void {
     this.node.notes = notes;
+  } 
+  
+  /**
+   * 
+   * @param event Handle the start drag event of a node
+   */
+  dragStart(event: DragEvent) {
+    event.stopPropagation();
+    event.dataTransfer!.setData(this.node.id, 'text/plain');    
+  }
+  
+  /**
+   * 
+   * @param event Handle the event of a dragged element over the current node
+   */
+  dragOver(event: DragEvent): void {
+    event.preventDefault();
+    const draggedId = event.dataTransfer!.types[0];
+    const ids = this.mapManager.getAllDestinations(draggedId);
+    
+    if(ids.indexOf(this.node.id) > -1) {
+      this.isHover = true;      
+    }    
   }  
 
-  onDropEnter(event: CdkDragEnter<any>): void {
-    if(event.container.id !== event.item.dropContainer.id) {
-      this.isHover = true;
-      const clone = cloneDeep(event.item.data) as MapNode;
-      clone.temp = true;      
-      this.mapManager.mockNode(clone);
-    }
+  
+  /**
+   * 
+   * @param event Handle the event of an element dragged out of the current node
+   */
+  dragOut(event: any): void {    
+    this.isHover = false;    
+  }
+
+  /**
+   * Handle the event of an element dropped to the current node
+   * @param event 
+   */
+  drop(event: DragEvent): void {
+    event.preventDefault();
+    const draggedId = event.dataTransfer!.types[0];
+    const ids = this.mapManager.getAllDestinations(draggedId);
     
-  }
-
-  onDropExit(event: CdkDragExit<any>): void {
-    if(event.container.id !== event.item.dropContainer.id) {
+    if(ids.indexOf(this.node.id) > -1) {
       this.isHover = false;
-      this.mapManager.removeMockNode(event.item.data);
-    }
-  }
-
-  onDropped(event: CdkDragDrop<any, any>): void {
-    this.isHover = false;
-    this.mapManager.removeAllMockNodes();
-    //console.log(this.node.id);
+      this.mapManager.appendToNewParent(this.node, draggedId);
+      timer(0).subscribe(() => this.children$.next(this.node.children));  
+    }    
   }
 
   /**
