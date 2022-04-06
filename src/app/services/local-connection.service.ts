@@ -77,8 +77,7 @@ export class LocalConnectionService implements OnDestroy {
    */
   refreshLocally(): void {
     timer(0).subscribe(() => {
-      this.jsPlumbInstance.repaintEverything();
-      console.log('refresh');      
+      this.jsPlumbInstance.repaintEverything();           
     });
   }
 
