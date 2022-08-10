@@ -34,6 +34,14 @@
         <fa-icon (click)="zoomOut()" [icon]="faSearchMinus" title="Zoom out"></fa-icon>
     </div>
 
+    <div class="toolbar-icon" *ngIf="isMonochromatic$ | async">
+        <fa-icon (click)="setColors()" [icon]="faPalette" title="Colors"></fa-icon>
+    </div>
+
+    <div class="toolbar-icon" *ngIf="!(isMonochromatic$ | async)">
+        <fa-icon (click)="setMonochromatic()" [icon]="faEyeDropper" title="Monochromatic"></fa-icon>
+    </div>
+
     <div class="toolbar-icon">
         <fa-icon (click)="getQuokka()" [icon]="faGift" title="Get a free Quokka"></fa-icon>
     </div>

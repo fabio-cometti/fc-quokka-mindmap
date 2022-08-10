@@ -61,6 +61,8 @@ export class MapItemComponent implements OnInit, AfterViewInit {
    * Specify if the node is the last child of its parent
    */
   @Input('isLast') isLast = false; 
+
+  @Input('isMonochromatic') isMonochromatic = false;
   
   /**
    * Emit an event when the title is modified

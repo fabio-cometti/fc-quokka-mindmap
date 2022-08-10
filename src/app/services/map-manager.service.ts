@@ -1,7 +1,7 @@
 import { ElementRef, Injectable } from "@angular/core";
 import { MapNode } from "../models/map-item";
 import { v4 as uuidv4 } from "uuid";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Subject, timer } from "rxjs";
 import { toPng, toBlob, toSvg } from "html-to-image";
 import { downloadURI } from "../core/utils";
 
@@ -12,6 +12,9 @@ export class MapManagerService {
   private cssIndex = 0;
   private rootNode!: MapNode;
   private container!: ElementRef;
+
+  private isMonochromaticSubject = new BehaviorSubject<boolean>(false);
+  public isMonochromatic$ = this.isMonochromaticSubject.asObservable();
 
   /**
    * Subject for manage map modifications
@@ -202,7 +205,7 @@ export class MapManagerService {
     
     if(!newTarget.isRoot && newTarget.position !== currentNode?.position) {
       this.recursiveMove(currentNode!);      
-    }    
+    }        
 
     newTarget.children.push(currentNode!);
     this.mapChanged();
@@ -213,11 +216,27 @@ export class MapManagerService {
    * @param currentNode 
    * @param css 
    */
-  recursivUpdateCss(currentNode: MapNode, css: string) {
+  recursivUpdateCss(currentNode: MapNode, css: string) : void {
     currentNode.css = css;    
     currentNode.children.forEach((element) => {
       this.recursivUpdateCss(element, css);      
     });
+  }
+
+  /**
+   * Set map for using multicolor round-robin scheme for nodes
+   */
+  setColorMode() : void {
+    this.isMonochromaticSubject.next(false);    
+    this.repaintMapColors();    
+  }
+
+  /**
+   * Set map for using only one color scheme for nodes
+   */
+  setMonochromaticMode() : void {
+    this.isMonochromaticSubject.next(true);
+    this.repaintMapColors();    
   }
 
   /* #endregion */  
@@ -318,10 +337,41 @@ export class MapManagerService {
   }
 
   private getNewNodeCSS(parentNode: MapNode): string {
-    const css = parentNode.isRoot
-      ? "conn" + (this.cssIndex++ % 10)
-      : parentNode.css || "";
-    return css;
+    if(this.isMonochromaticSubject.value) {
+      this.cssIndex = 0;
+      return "conn4";
+    } else {
+      const css = parentNode.isRoot
+        ? "conn" + (this.cssIndex++ % 10)
+        : parentNode.css || "";
+      return css;
+    }
+  }
+
+  private repaintMapColors() : void {
+    this.rootNode.children.forEach(element => { 
+      const css = this.getNewNodeCSS(this.rootNode);
+      this.recursivUpdateCss(element!, css);
+    });
+    
+    // const children = this.rootNode.children;
+    
+    // children.forEach(element => { 
+    //   this.deleteChild(element.id, this.rootNode);
+    //   this.nodeDetachedSubject.next(this.rootNode.id); 
+    // });
+
+    // children.forEach(element => { 
+    //   const css = this.getNewNodeCSS(this.rootNode);
+
+    //   this.recursivUpdateCss(element!, css);
+    //   //this.recursiveMove(element!);    
+
+    //   this.rootNode.children.push(element!);  
+    //   timer(0).subscribe( () => this.mapChanged()); 
+    // });
+    
+    //timer(2000).subscribe( () => this.mapChanged());
   }
 
   /* #endregion */
@@ -337,7 +387,7 @@ export class MapManagerService {
     toBlob(containerElement as HTMLElement, {
       width: containerElement.scrollWidth + 100,
       height: containerElement.scrollHeight + 50,
-      backgroundColor: "#303030",
+      backgroundColor: "#FFFFFF",
     }).then(function (blob) {
       const blobUrl = URL.createObjectURL(blob!);
       window.open(blobUrl, "_blank");
@@ -353,7 +403,7 @@ export class MapManagerService {
     toPng(containerElement as HTMLElement, {
       width: containerElement.scrollWidth + 100,
       height: containerElement.scrollHeight + 50,
-      backgroundColor: "#303030",
+      backgroundColor: "#FFFFFF",
     }).then(function (dataUrl) {
       downloadURI(dataUrl, "map.png");
     });
@@ -368,7 +418,7 @@ export class MapManagerService {
     toSvg(containerElement as HTMLElement, {
       width: containerElement.scrollWidth + 100,
       height: containerElement.scrollHeight + 50,
-      backgroundColor: "#303030",
+      backgroundColor: "#FFFFFF",
     }).then(function (dataUrl) {
       downloadURI(dataUrl, "map.svg");
     });

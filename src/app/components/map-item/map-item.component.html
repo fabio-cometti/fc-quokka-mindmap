@@ -1,5 +1,5 @@
 <div (mouseenter)="showToolbar()" (mouseleave)="hideToolbar()" class="item-main-container">
-    <div #c class="item {{css}}" id="{{id}}" [ngClass]="{editing: state === 'edit', root: isRoot}" >        
+    <div #c class="item {{css}}" id="{{id}}" [ngClass]="{editing: state === 'edit', root: isRoot, isMonochromatic: isMonochromatic}" >        
         <span *ngIf="state === 'view'" 
             title="{{title}}" 
             (dblclick)="goToEdit()">

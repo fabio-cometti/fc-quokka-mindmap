@@ -12,7 +12,9 @@ import {
   faProjectDiagram, 
   faFileMedical, 
   faGift, 
-  faCog 
+  faCog ,
+  faPalette,
+  faEyeDropper
 } from '@fortawesome/free-solid-svg-icons';
 import { Subscription, timer } from 'rxjs';
 import { downloadURI } from 'src/app/core/utils';
@@ -47,11 +49,15 @@ export class MapDashboardComponent implements OnInit, OnDestroy {
   faFileMedical = faFileMedical;
   faGift = faGift;
   faCog = faCog;
+  faPalette = faPalette;
+  faEyeDropper = faEyeDropper;
 
   rootNode!: MapNode;
 
   zoomIndex = 5;
   zoomLevels = zoomLevels;  
+
+  isMonochromatic$ = this.mapManager.isMonochromatic$;
 
   /**
    * Initial title of the node. this value is not in sync with user changes
@@ -134,6 +140,14 @@ export class MapDashboardComponent implements OnInit, OnDestroy {
     if(this.zoomIndex > 0) {
       this.zoomIndex = this.zoomIndex - 1;
     }
+  }
+
+  setColors(): void {
+    this.mapManager.setColorMode();
+  }
+
+  setMonochromatic(): void {
+    this.mapManager.setMonochromaticMode();
   }
 
   /**

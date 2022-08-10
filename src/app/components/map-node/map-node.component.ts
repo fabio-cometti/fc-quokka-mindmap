@@ -1,6 +1,6 @@
-import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { BehaviorSubject, Observable, timer, Subscription } from 'rxjs';
 import { ConnectionService } from 'src/app/services/connection.service';
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { MapNode } from 'src/app/models/map-item';
 import { delay, filter, map, switchMap, tap } from 'rxjs/operators';
 import { LocalConnectionService } from 'src/app/services/local-connection.service';
@@ -20,11 +20,13 @@ import { ConstantPool } from '@angular/compiler';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers:[LocalConnectionService]
 })
-export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked {
+export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, AfterViewChecked, OnDestroy {
   
   private inputChanged = false;  
   private children$ = new BehaviorSubject<MapNode[]>([]);
   public isHover = false;
+  public isMonochromatic = false;
+  private subcriptions = new Subscription();
 
   /**
    * Reference to the canvas
@@ -56,7 +58,7 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
   /**
    * A boolean indicate if the node is the last child of his parent
    */
-  @Input('isLast') isLast = false;
+  @Input('isLast') isLast = false;  
 
   /**
    * Emit an event when the nested item is initialized and rendered. 
@@ -90,8 +92,12 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
    */
   constructor(    
     private mapManager: MapManagerService,
-    private localConnection: LocalConnectionService
+    private localConnection: LocalConnectionService,
+    private ref: ChangeDetectorRef
   ) { }
+  ngOnDestroy(): void {
+    this.subcriptions.unsubscribe();
+  }
 
   
   ngOnInit(): void {
@@ -99,6 +105,13 @@ export class MapNodeComponent implements OnInit, AfterViewInit, OnChanges, After
     this.localConnection.setNode(this.node);
     this.children$.next(this.node.children); 
     this.mapManager.nodeDetached$.pipe(filter(id => id === this.node.id)).subscribe(() => this.children$.next(this.node.children));   
+        
+    this.subcriptions.add(this.mapManager.isMonochromatic$.pipe(delay(0)).subscribe((isMonochromatic) => {
+      this.isMonochromatic = isMonochromatic;
+      this.refresh();
+      this.ref.markForCheck();
+    }));
+    
   }
 
   ngAfterViewInit(): void {

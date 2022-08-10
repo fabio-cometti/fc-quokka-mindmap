@@ -31,6 +31,7 @@
             [isLast]="isLast"
             [state]="node.isNew ? 'edit': 'view'"
             [notes]="node.notes || ''"
+            [isMonochromatic]="isMonochromatic"
             (titleChange)="updateTitle($event)"                 
             (addedNode)="addChild(('' + node.id))" 
             (nodeDeleted)="deleteNode($event)" 

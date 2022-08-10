@@ -19,6 +19,12 @@
         border: solid 1px #ff9800;
         border-radius: 50%;
         padding: 20px;
+
+        &.isMonochromatic {
+            color: #ffffff !important; 
+            background-color: cadetblue !important;
+            border-color: cadetblue;  
+        }
     }
     
     &.conn {
